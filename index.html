@@ -3,99 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <title>请假管理</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-    body { font-family: Arial, sans-serif; }
-    .header { background-color: #f0f8ff; padding: 10px; }
-    .content { margin: 20px; }
-    .info {
-    padding-left: 10px;
-    margin-bottom: 20px;
+
+/* 设置整体字体大小为 1.5 倍（1em = 16px → 1.5em ≈ 24px） */
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em; /* 全局放大 1.5 倍 */
+}
+
+/* 用户信息栏样式 */
+.user-info {
+    margin-bottom: 1.25em; /* 20px → 1.25em */
+    display: flex;
+    align-items: center;
+    margin-left: 1.25em;
+    margin-top: 1.25em;
+}
+.avatar {
+    width: 2.5em; /* 40px → 2.5em */
+    height: 2.5em; /* 40px → 2.5em */
+    border-radius: 50%;
+    background-color: rgb(240,245,248);
+    margin-right: 0.625em; /* 10px → 0.625em */
+}
+.user-text {
+    display: inline-block;
+}
+.user-text h4, 
+.user-text p {
+    margin: 0;
+}
+.user-text p {
+    color: gray;
+    font-size: 0.9em; /* 相对于 body，实际 ≈ 21.6px */
+}
+
+/* 头部与内容 */
+.header { 
+    background-color: #f0f8ff; 
+    padding: 0.625em; /* 10px → 0.625em */
+}
+.content { 
+    margin: 1.25em; /* 20px → 1.25em */
+    /* 移除 font-size，继承 body */
+}
+
+.info {
+    padding-left: 0.625em; /* 10px → 0.625em */
+    margin-bottom: 1.25em; /* 20px → 1.25em */
 }
 
 .info, .progress {
-        margin-bottom: 20px;
-        position: relative;
-        padding-left: 10px;
-    }
+    margin-bottom: 1.25em;
+    position: relative;
+    padding-left: 0.625em;
+}
 
-    .info::before, .progress::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 2px; /* 与 h3 垂直对齐 */
-        height: 24px; /* 约等于 h3 文字高度，可微调 */
-        width: 4px;
-        background-color: #007bff;
-    }
+.info::before, .progress::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 1.5em; /* 24px → 1.5em */
+    width: 0.25em; /* 4px → 0.25em */
+    background-color: #007bff;
+}
 
 .progress::before {
     content: '';
     position: absolute;
     left: 0;
     top: 2.8px;
-    height: 1.5em; /* 与“办理进度”标题文字大致同高 */
-    width: 4px;
+    height: 1.4em;
+    width: 0.25em;
     background-color: #007bff;
 }
-    .stamp { float: right; margin-top: -50px; }
-    .info p { 
-        margin: 0; 
-        line-height: 1.88; /* 调整行高以确保文本不会重叠 */
-        font-size: 1.1em;
-    }
-    .info span:first-child { 
-        color: rgb(161, 161, 161); 
-        margin-right: 0.5em; /* 控制键名和值之间的间距 */
-    }
-    .progress div { 
-        display: flex; 
-        align-items: center; 
-        margin: 0; 
-        line-height: 1.1; /* 调整行高以确保文本不会重叠 */
-        font-size: 1.1em;
-    }
+
+.stamp { 
+    float: right; 
+    margin-top: -3.125em; /* -50px → -3.125em */
+}
+
+.info p { 
+    margin: 0; 
+    line-height: 1.88; 
+    font-size: 1.1em; /* ≈ 39.6px 实际大小 */
+}
+
+.info span:first-child { 
+    color: rgb(161, 161, 161); 
+    margin-right: 0.5em;
+    flex-shrink: 0;
+    min-width: 5em; /* 80px → 5em */
+}
+
+.progress div { 
+    display: flex; 
+    align-items: center; 
+    margin: 0; 
+    line-height: 1.7; /* 增大行高以适配大字体 */
+    font-size: 1em; /* 继承 body 的 1.5em，实际 ≈ 36px */
+    margin-bottom: -1.1em; /* 新增：减小步骤间的间距 */
+}
+
+/* 进度图标内文字也改为 em */
+.progress .check-mark {
+    display: inline-block;
+    width: 1.25em; /* 20px → 1.25em */
+    height: 1.25em;
+    border: 0.0625em solid #4b7ccb; /* 1px → 0.0625em */
+    border-radius: 50%;
+    text-align: center;
+    line-height: 1.125em; /* 18px → 1.125em */
+    color: #4b7ccb;
+    font-size: 0.875em; /* 14px → 0.875em */
+    margin-right: 0.625em;
+}
+
+.progress .dot-mark {
+    display: inline-block;
+    width: 1.25em;
+    height: 1.25em;
+    border: 0.0625em solid #4b7ccb;
+    border-radius: 50%;
+    position: relative;
+    margin-right: 0.625em;
+}
+.progress .dot-mark span {
+    display: block;
+    width: 0.5em; /* 8px → 0.5em */
+    height: 0.5em;
+    background-color: #4b7ccb;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 时间文字 */
+.progress .time {
+    margin-left: auto;
+    color: #a1a1a1;
+    font-size: 0.875em; /* 14px → 0.875em */
+}
+
+/* 辅助信息 */
+.progress .sub-info {
+    color: #a1a1a1;
+    margin-left: 1.875em; /* 30px → 1.875em */
+    font-size: 0.875em;
+    margin-top: 1em;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+.progress .sub-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 1.875em;
+    margin-top: -0.6em; 
+    margin-bottom: -0.1em;
+    line-height: 1;
+    color: #a1a1a1;
+    font-size: 0.875em;
+}
+
 </style>
 </head>
 <body>
 <div class="header">
     <a href="#">首页</a> > 应用 > 请假管理 > 请假管理
 </div>
+
+<!-- 用户信息栏 -->
+<div class="user-info">
+    <div class="avatar"></div>
+    <div class="user-text">
+        <h4>张三</h4>
+        <p>20210001</p>
+    </div>
+</div>
+
+<div style="height: 0.75em; background-color: #f3f4f8; margin: 0; padding: 0;"></div>
+
 <div class="content">
     <div class="info">
         <h3>请假信息</h3>
-        <p><span>请假类型:</span>节假日及寒暑假请假</p>
+        <p><span>请假类型:</span>其他</p>
         <p><span>请假去向:</span>回家</p>
         <p><span>详细地址:</span>广东省广州市天河区深海明珠</p>
         <p><span>开始时间:</span>2025-09-05 17:21:00</p>
         <p><span>结束时间:</span>2025-09-05 21:21:00</p>
         <p><span>统计时长:</span>0天4小时00分钟</p>
-        <p><span>紧急联系人:</span>sjl</p>
+        <p><span>紧急联系人:</span>xaffsas</p>
         <p><span>紧急联系人电话:</span>13912034783</p>
         <p><span>请假理由:</span>到处玩</p>
         <p><span>请假状态:</span> <span style="color: rgb(34, 142, 241);">审核通过</span></p>
-        <p><span>销假状态:</span>未销假</p>
+        <p><span>销假状态:</span></p>
         <p><span>请假附件:</span></p>
     </div>
+
+<div style="height: 1.25em; background-color: #f3f4f8; margin: 0; padding: 0;"></div>
+
     <div class="progress">
         <h3>办理进度</h3>
-        <div>
-            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
-            <p>申请 <span style="color: green;">申请</span></p>
-            <p style="margin-left: auto;">2025-06-06 14:53</p>
+
+        <!-- 步骤1：申请 -->
+        <div style="align-items: center;">
+            <span class="check-mark">✓</span>
+            <p>申请 <span style="color: rgb(54,221,163);">申请</span></p>
+            <p class="time">2025-06-06 14:53</p>
         </div>
-        <p style="color: #a1a1a1; margin-left: 30px; font-size: 1.1em; margin-top: 0; margin-bottom: 0; line-height: 0.825;">姓名</p>
-        <div>
-            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
-            <p>辅导员审核 <span style="color: green;">审核通过</span></p>
-            <p style="margin-left: auto;">2025-06-06 14:54</p>
+
+        <p class="sub-info">姓名</p>
+
+        <!-- 步骤2：辅导员审核 -->
+        <div style="align-items: center;">
+            <span class="check-mark">✓</span>
+            <p>辅导员审核 <span style="color: rgb(54,221,163);">审核通过</span></p>
+            <p class="time">2025-09-05 18:59</p>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-left: 30px; margin-top: -20px; margin-bottom: -20px; line-height: 1; color: #a1a1a1; font-size: 1.1em;">
-    <p>大队长</p>
-    <p style="color: rgb(34, 142, 241);">同意</p>
-</div>
-        <div>
-            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
-            <p>结束</p>
+
+        <div class="sub-info-row">
+            <p>大队长</p>
+            <p style="color: rgb(34, 142, 241);">同意</p>
+        </div>
+
+        <!-- 步骤3：结束 -->
+        <div style="align-items: center;">
+            <span class="dot-mark">
+                <span></span>
+            </span>
+            <p style="margin: 0; font-size: 1em;">结束</p>
         </div>
     </div>
 </div>
