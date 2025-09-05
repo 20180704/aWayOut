@@ -11,7 +11,7 @@ body {
     font-family: Arial, sans-serif; 
     margin: 0;
     padding: 0;
-    font-size: 1em; /* 全局放大 1.5 倍 */
+    font-size: 0.95em; /* 全局放大 1.5 倍 */
 }
 
 /* 用户信息栏样式 */
@@ -52,14 +52,14 @@ body {
 }
 
 .info {
-    padding-left: 0.625em; /* 10px → 0.625em */
+    padding-left: 0em; /* 10px → 0.625em */
     margin-bottom: 1.25em; /* 20px → 1.25em */
 }
 
 .info, .progress {
     margin-bottom: 1.25em;
     position: relative;
-    padding-left: 0.625em;
+    padding-left: 0em;
 }
 
 .info::before, .progress::before {
@@ -90,7 +90,7 @@ body {
 .info p { 
     margin: 0; 
     line-height: 1.88; 
-    font-size: 1em; /* ≈ 39.6px 实际大小 */
+    font-size: 0.96em; /* ≈ 39.6px 实际大小 */
 }
 
 .info span:first-child { 
@@ -192,7 +192,7 @@ body {
 
 <div class="content">
     <div class="info">
-        <h3>请假信息</h3>
+        <h3 style="margin-left: 0.4em;">请假信息</h3>
         <p><span>请假类型:</span>其他</p>
         <p><span>请假去向:</span>回家</p>
         <p><span>详细地址:</span>广东省广州市天河区深海明珠</p>
@@ -210,12 +210,12 @@ body {
 <div style="height: 1.25em; background-color: #f3f4f8; margin: 0; padding: 0;"></div>
 
     <div class="progress">
-        <h3>办理进度</h3>
+        <h3 style="margin-left: 0.4em;">办理进度</h3>
 
         <!-- 步骤1：申请 -->
         <div style="align-items: center;">
             <span class="check-mark">✓</span>
-            <p>申请 <span style="color: rgb(54,221,163);">申请</span></p>
+            <p>申请 <span style="color: rgb(76,208,125);">申请</span></p>
             <p class="time">2025-06-06 14:53</p>
         </div>
 
@@ -224,7 +224,7 @@ body {
         <!-- 步骤2：辅导员审核 -->
         <div style="align-items: center;">
             <span class="check-mark">✓</span>
-            <p>辅导员审核 <span style="color: rgb(54,221,163);">审核通过</span></p>
+            <p>辅导员审核 <span style="color: rgb(76,208,125);">审核通过</span></p>
             <p class="time">2025-09-05 18:59</p>
         </div>
 
@@ -244,4 +244,3 @@ body {
 </div>
 </body>
 </html>
-
