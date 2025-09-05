@@ -193,7 +193,7 @@ body {
 </div>
 
 <script>
-// === 默认配置（可修改）===
+// === 默认配置 ===
 const defaultConfig = {
   user_h4_name: "张三",
   user_p_id: "20210001",
@@ -202,25 +202,27 @@ const defaultConfig = {
   apply_time: "2025-09-05 10:00"
 };
 
-let longPressTimer = null;
-
 // === 初始化配置面板 ===
 function initConfigPanel() {
   const configFields = document.getElementById('configFields');
   if (!configFields) return;
 
-  // 读取本地保存的配置
   const saved = localStorage.getItem('leaveConfig');
   const data = saved ? JSON.parse(saved) : {};
 
-  // === 1. 读取 .info p 中的标签+值，生成输入框 ===
+  // 清空原有字段
+  configFields.innerHTML = '';
+
+  // === 1. .info p 字段（使用安全更新）===
   document.querySelectorAll('.info p').forEach((p, i) => {
     const keySpan = p.querySelector('span:first-child');
     if (!keySpan) return;
+
     const keyLabel = keySpan.textContent.trim();
     const value = p.textContent.replace(keyLabel, '').trim();
     const inputName = `field_${i}`;
     const savedValue = data[inputName] !== undefined ? data[inputName] : value;
+
     createInput(inputName, keyLabel, savedValue);
   });
 
@@ -234,7 +236,7 @@ function initConfigPanel() {
   const idVal = data.user_p_id || (idEl?.textContent?.trim() || defaultConfig.user_p_id);
   createInput('user_p_id', '用户学号', idVal);
 
-  // === 4. 办理人角色（大队长/辅导员）===
+  // === 4. 办理人角色 ===
   const roleRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(r =>
     r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
   );
@@ -242,13 +244,13 @@ function initConfigPanel() {
   const roleVal = data.handler_role || (roleEl?.textContent?.trim() || defaultConfig.handler_role);
   createInput('handler_role', '办理人角色', roleVal);
 
-  // === 5. 办理时间（通常是第二个 .time）===
+  // === 5. 办理时间 ===
   const timeEls = document.querySelectorAll('.progress .time');
   const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
   const teacherTimeVal = data.teacher_time || (teacherTimeEl?.textContent?.trim() || defaultConfig.teacher_time);
   createInput('teacher_time', '办理时间', teacherTimeVal);
 
-  // === 6. 申请时间（查找包含“申请”的区块中的 .time）===
+  // === 6. 申请时间 ===
   const applyDivs = Array.from(document.querySelectorAll('div')).filter(div => {
     const pText = div.querySelector('p')?.textContent || '';
     return pText.includes('申请');
@@ -257,7 +259,7 @@ function initConfigPanel() {
   const applyTimeVal = data.apply_time || (applyTimeEl?.textContent?.trim() || defaultConfig.apply_time);
   createInput('apply_time', '申请时间', applyTimeVal);
 
-  // 应用配置到页面
+  // 应用配置（使用安全更新）
   applyConfigToPage(data);
 }
 
@@ -266,37 +268,58 @@ function createInput(name, label, value) {
   const div = document.createElement('div');
   div.innerHTML = `
     <label>${label}:<br>
-      <input type="text" name="${name}" value="${escapeHtml(value)}" 
+      <input type="text" name="${name}" value="${escapeHtml(value)}"
              style="width:90%; padding:4px; margin:4px 0; font-size:14px;">
     </label><br><br>
   `;
   document.getElementById('configFields').appendChild(div);
 }
 
-// 应用配置到页面元素
+//安全更新函数：保留 img 标签
+function safeUpdateP(p, keySpan, newValue) {
+  // 保留 pass.png 图片
+  const passImg = p.querySelector('img[src="pass.png"]');
+  
+  // 清空内容
+  p.innerHTML = '';
+  
+  // 重新插入 keySpan 和新值
+  p.appendChild(keySpan);
+  p.appendChild(document.createTextNode(newValue));
+  
+  // 如果有 pass.png，重新插入到右侧
+  if (passImg) {
+    const imgWrapper = document.createElement('span');
+    imgWrapper.style.cssText = 'float: right; height: 1.6em; margin-top: 0.1em;';
+    imgWrapper.appendChild(passImg);
+    p.appendChild(imgWrapper);
+  }
+}
+
+// 应用配置到页面（使用安全更新）
 function applyConfigToPage(data) {
-  // .info p 字段
+  // === 1. .info p 字段（使用 safeUpdateP）===
   document.querySelectorAll('.info p').forEach((p, i) => {
-    const key = `field_${i}`;
-    if (data[key] === undefined) return;
     const keySpan = p.querySelector('span:first-child');
     if (!keySpan) return;
-    const label = keySpan.textContent.trim();
-    p.innerHTML = keySpan.outerHTML + data[key];
+    const inputName = `field_${i}`;
+    if (data[inputName] === undefined) return;
+    
+    safeUpdateP(p, keySpan, data[inputName]);
   });
 
-  // 用户姓名
+  // === 2. 用户姓名 ===
   if (data.user_h4_name && document.querySelector('.user-text h4')) {
     document.querySelector('.user-text h4').textContent = data.user_h4_name;
   }
 
-  // 用户学号
+  // === 3. 用户学号 ===
   if (data.user_p_id) {
     const el = document.querySelector('.user-text > p:not([class])');
     if (el) el.textContent = data.user_p_id;
   }
 
-  // 办理人角色
+  // === 4. 办理人角色 ===
   const roleRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(r =>
     r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
   );
@@ -304,14 +327,14 @@ function applyConfigToPage(data) {
     roleRow.querySelector('p').textContent = data.handler_role;
   }
 
-  // 办理时间
+  // === 5. 办理时间 ===
   const timeEls = document.querySelectorAll('.progress .time');
   const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
   if (data.teacher_time && teacherTimeEl) {
     teacherTimeEl.textContent = data.teacher_time;
   }
 
-  // 申请时间
+  // === 6. 申请时间 ===
   const applyDivs = Array.from(document.querySelectorAll('div')).filter(div => {
     const pText = div.querySelector('p')?.textContent || '';
     return pText.includes('申请');
@@ -321,7 +344,7 @@ function applyConfigToPage(data) {
     applyTimeEl.textContent = data.apply_time;
   }
 
-  // 进度条中的用户姓名（sub-info）
+  // === 7. 进度条中的用户姓名 ===
   if (data.user_h4_name) {
     const subInfoEl = document.querySelector('.progress .sub-info');
     if (subInfoEl) {
@@ -330,14 +353,14 @@ function applyConfigToPage(data) {
   }
 }
 
-// 保存配置
+// 保存
 function saveToLocal() {
   const data = {};
   document.querySelectorAll('#configFields input').forEach(input => {
     data[input.name] = input.value;
   });
   localStorage.setItem('leaveConfig', JSON.stringify(data));
-  alert('✅ 配置已保存！刷新页面后生效');
+  alert('配置已保存！刷新页面后生效');
   location.reload();
 }
 
@@ -348,84 +371,12 @@ function resetToDefault() {
   location.reload();
 }
 
-// 隐藏面板
+// 隐藏/显示面板
 function hidePanel() {
   document.getElementById('configPanel').style.display = 'none';
 }
-
-// 显示面板
 function showPanel() {
   document.getElementById('configPanel').style.display = 'block';
-}
-
-// === 核心：绑定长按头像触发 ===
-// === 核心：静默绑定长按头像触发（无视觉变化）===
-function setupLongPressOnAvatar() {
-  // 常见头像选择器（按优先级）
-  const selectors = [
-    '.user-text .avatar',
-    '.user-text > div:first-child', // 第一个 div（常为头像容器）
-    '.user-text circle',
-    '.user-text svg',
-    '.avatar',
-    '.profile-pic',
-    '.user-text img'
-  ];
-
-  let avatar = null;
-  for (const sel of selectors) {
-    avatar = document.querySelector(sel);
-    if (avatar) break;
-  }
-
-  if (!avatar) {
-    console.warn('⚠️ 未找到头像元素，500ms 后重试...');
-    setTimeout(setupLongPressOnAvatar, 500);
-    return;
-  }
-
-  // 🔐 完全不修改外观，不加边框、不加阴影、不改 cursor
-  // 只绑定事件，用户完全看不出区别
-
-  let longPressTimer;
-
-  const startPress = () => {
-    // 长按 3 秒触发
-    longPressTimer = setTimeout(() => {
-      showPanel(); // 弹出面板
-      console.log('🎯 长按识别成功，配置面板已开启');
-    }, 3000);
-  };
-
-  const cancelPress = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  };
-
-  // === 绑定事件（不干扰原始行为）===
-
-  // 鼠标按下
-  avatar.addEventListener('mousedown', (e) => {
-    e.preventDefault(); // 阻止默认行为（如选中）
-    startPress();
-  });
-
-  // 鼠标抬起或移出，取消计时
-  document.addEventListener('mouseup', cancelPress);
-  document.addEventListener('mouseleave', cancelPress);
-
-  // 触摸设备支持
-  avatar.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // 阻止默认触摸行为
-    startPress();
-  }, { passive: false });
-
-  document.addEventListener('touchend', cancelPress);
-  document.addEventListener('touchcancel', cancelPress);
-
-  console.log('✅ 头像长按监听已静默绑定，外观无变化');
 }
 
 // 防 XSS
@@ -435,12 +386,24 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// === 页面加载完成后初始化 ===
+// ===绑定「首页」点击触发配置面板 ===
 document.addEventListener('DOMContentLoaded', () => {
-  // 延迟执行，确保 DOM 稳定
   setTimeout(() => {
-    initConfigPanel();           // 初始化配置面板
-    setupLongPressOnAvatar();    // 绑定头像长按
+    initConfigPanel();
+
+    const homeLink = document.querySelector('.header a[href="#"]');
+    if (!homeLink) {
+      console.error('未找到首页链接');
+      return;
+    }
+
+    homeLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showPanel();
+      console.log('配置面板已开启');
+    });
+
+    console.log('已绑定「首页」点击触发配置面板');
   }, 200);
 });
 </script>
