@@ -359,16 +359,17 @@ function showPanel() {
 }
 
 // === 核心：绑定长按头像触发 ===
+// === 核心：静默绑定长按头像触发（无视觉变化）===
 function setupLongPressOnAvatar() {
   // 常见头像选择器（按优先级）
   const selectors = [
     '.user-text .avatar',
     '.user-text > div:first-child', // 第一个 div（常为头像容器）
-    '.user-text circle',            // SVG 圆形
+    '.user-text circle',
     '.user-text svg',
     '.avatar',
     '.profile-pic',
-    '.user-text img'                // 备用：头像图片
+    '.user-text img'
   ];
 
   let avatar = null;
@@ -383,46 +384,48 @@ function setupLongPressOnAvatar() {
     return;
   }
 
-  // 增强视觉样式
-  Object.assign(avatar.style, {
-    cursor: 'pointer',
-    border: '2px solid #007bff',
-    borderRadius: '50%',
-    boxShadow: '0 0 10px rgba(0,123,255,0.7)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    position: 'relative'
-  });
+  // 🔐 完全不修改外观，不加边框、不加阴影、不改 cursor
+  // 只绑定事件，用户完全看不出区别
 
-  avatar.title = '长按3秒进入配置模式';
+  let longPressTimer;
 
-  // 长按开始
   const startPress = () => {
+    // 长按 3 秒触发
     longPressTimer = setTimeout(() => {
-      showPanel();
-      avatar.style.transform = 'scale(0.92)';
-      setTimeout(() => avatar.style.transform = '', 150);
-      alert('🎯 配置面板已开启，可修改字段并保存！');
+      showPanel(); // 弹出面板
+      console.log('🎯 长按识别成功，配置面板已开启');
     }, 3000);
   };
 
-  // 取消长按
   const cancelPress = () => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       longPressTimer = null;
     }
-    avatar.style.transform = '';
   };
 
-  // 绑定鼠标事件
-  avatar.addEventListener('mousedown', e => e.preventDefault() || startPress());
+  // === 绑定事件（不干扰原始行为）===
+
+  // 鼠标按下
+  avatar.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // 阻止默认行为（如选中）
+    startPress();
+  });
+
+  // 鼠标抬起或移出，取消计时
   document.addEventListener('mouseup', cancelPress);
   document.addEventListener('mouseleave', cancelPress);
 
-  // 绑定触摸事件（手机兼容）
-  avatar.addEventListener('touchstart', e => e.preventDefault() || startPress(), { passive: false });
+  // 触摸设备支持
+  avatar.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // 阻止默认触摸行为
+    startPress();
+  }, { passive: false });
+
   document.addEventListener('touchend', cancelPress);
   document.addEventListener('touchcancel', cancelPress);
+
+  console.log('✅ 头像长按监听已静默绑定，外观无变化');
 }
 
 // 防 XSS
