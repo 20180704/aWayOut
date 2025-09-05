@@ -175,170 +175,280 @@ body {
     color: #a1a1a1;
     font-size: 0.9em;
 }
-
 </style>
 </head>
-<!-- === 配置面板：长按“审核通过”3秒弹出 === -->
-<div id="configPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:2px solid #007bff;padding:1em;z-index:1000;max-height:70vh;overflow-y:auto;font-size:0.9em;">
-  <h4>🔧 编辑参数</h4>
+<!--开始-->
+
+
+
+
+
+
+<div id="configPanel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#f8f9fa; border-top:2px solid #007bff; padding:1em; z-index:10000; max-height:70vh; overflow-y:auto; font-size:14px; box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
+  <h4>参数配置</h4>
   <div id="configFields"></div>
-  <button onclick="saveToLocal()" style="padding:0.5em 1em">💾 保存</button>
-  <button onclick="this.parentElement.style.display='none'" style="padding:0.5em 1em;background:#ccc">关闭</button>
+  <button onclick="saveToLocal()" style="padding:6px 12px; background:#007bff; color:white; border:none; margin-right:8px;">保存配置</button>
+  <button onclick="resetToDefault()" style="padding:6px 12px; background:#dc3545; color:white; border:none; margin-right:8px;">恢复默认</button>
+  <button onclick="hidePanel()" style="padding:6px 12px; background:#6c757d; color:white; border:none;">隐藏</button>
 </div>
 
 <script>
-let holdTimer;
+// === 默认配置（可修改）===
+const defaultConfig = {
+  user_h4_name: "张三",
+  user_p_id: "20210001",
+  handler_role: "大队长",
+  teacher_time: "2025-09-05 10:00",
+  apply_time: "2025-09-05 10:00"
+};
 
-// 长按3秒触发（无反馈）
-function startHold() {
-  holdTimer = setTimeout(openConfig, 3000);
-}
-function clearHold() {
-  clearTimeout(holdTimer);
-}
+let longPressTimer = null;
 
-// 打开配置面板，自动生成所有字段
-function openConfig() {
-  const fields = document.getElementById('configFields');
-  fields.innerHTML = '';
+// === 初始化配置面板 ===
+function initConfigPanel() {
+  const configFields = document.getElementById('configFields');
+  if (!configFields) return;
 
-  // 1. 姓名
-  const nameEl = document.querySelector('.user-text h4');
-  const nameVal = nameEl ? nameEl.textContent.trim() : '';
-  fields.innerHTML += `<label>姓名:<br><input type="text" name="name" value="${escapeHtml(nameVal)}" style="width:90%"></label><br><br>`;
+  // 读取本地保存的配置
+  const saved = localStorage.getItem('leaveConfig');
+  const data = saved ? JSON.parse(saved) : {};
 
-  // 2. 学号
-  const idEl = document.querySelector('.user-text p');
-  const idVal = idEl ? idEl.textContent.replace('学号：', '').trim() : '';
-  fields.innerHTML += `<label>学号:<br><input type="text" name="id" value="${escapeHtml(idVal)}" style="width:90%"></label><br><br>`;
-
-  // 3. 请假信息：每个 <p><span>键:</span>值</p>
+  // === 1. 读取 .info p 中的标签+值，生成输入框 ===
   document.querySelectorAll('.info p').forEach((p, i) => {
     const keySpan = p.querySelector('span:first-child');
     if (!keySpan) return;
-    const key = keySpan.textContent.trim().replace(/:$/, '');
-    const value = p.textContent.replace(keySpan.textContent, '').trim();
-    fields.innerHTML += `<label>${key}:<br><input type="text" name="info_${i}" value="${escapeHtml(value)}" style="width:90%"></label><br><br>`;
+    const keyLabel = keySpan.textContent.trim();
+    const value = p.textContent.replace(keyLabel, '').trim();
+    const inputName = `field_${i}`;
+    const savedValue = data[inputName] !== undefined ? data[inputName] : value;
+    createInput(inputName, keyLabel, savedValue);
   });
 
-  // 4. 办理进度：申请人姓名（第一个 strong 或 p 中的文字）
-  const applyNameEl = document.querySelector('.progress div:first-child p strong');
-  const applyNameVal = applyNameEl ? applyNameEl.textContent.trim() : '';
-  fields.innerHTML += `<label>申请人姓名:<br><input type="text" name="apply_name" value="${escapeHtml(applyNameVal)}" style="width:90%"></label><br><br>`;
+  // === 2. 用户姓名 ===
+  const h4El = document.querySelector('.user-text h4');
+  const h4Val = data.user_h4_name || (h4El?.textContent?.trim() || defaultConfig.user_h4_name);
+  createInput('user_h4_name', '用户姓名', h4Val);
 
-  // 5. 申请时间（第一个 .time）
-  const applyTimeEl = document.querySelector('.progress .time');
-  const applyTimeVal = applyTimeEl ? applyTimeEl.textContent.trim() : '';
-  fields.innerHTML += `<label>申请时间:<br><input type="text" name="apply_time" value="${escapeHtml(applyTimeVal)}" style="width:90%"></label><br><br>";
+  // === 3. 用户学号 ===
+  const idEl = document.querySelector('.user-text > p:not([class])');
+  const idVal = data.user_p_id || (idEl?.textContent?.trim() || defaultConfig.user_p_id);
+  createInput('user_p_id', '用户学号', idVal);
 
-  // 6. 大队长姓名（“大队长”后面的 .sub-info-row span）
-  const teacherRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(row => 
-    row.textContent.includes('大队长') || row.textContent.includes('辅导员')
+  // === 4. 办理人角色（大队长/辅导员）===
+  const roleRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(r =>
+    r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
   );
-  const teacherNameEl = teacherRow ? teacherRow.querySelector('span') : null;
-  const teacherNameVal = teacherNameEl ? teacherNameEl.textContent.trim() : '';
-  fields.innerHTML += `<label>大队长姓名:<br><input type="text" name="teacher_name" value="${escapeHtml(teacherNameVal)}" style="width:90%"></label><br><br>";
+  const roleEl = roleRow?.querySelector('p');
+  const roleVal = data.handler_role || (roleEl?.textContent?.trim() || defaultConfig.handler_role);
+  createInput('handler_role', '办理人角色', roleVal);
 
-  // 7. 大队长办理时间（“大队长”后面的 .time，通常是第二个 .time）
-  const times = document.querySelectorAll('.progress .time');
-  const teacherTimeVal = times.length > 1 ? times[1].textContent.trim() : (times.length === 1 ? times[0].textContent.trim() : '');
-  fields.innerHTML += `<label>大队长办理时间:<br><input type="text" name="teacher_time" value="${escapeHtml(teacherTimeVal)}" style="width:90%"></label><br><br>";
+  // === 5. 办理时间（通常是第二个 .time）===
+  const timeEls = document.querySelectorAll('.progress .time');
+  const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
+  const teacherTimeVal = data.teacher_time || (teacherTimeEl?.textContent?.trim() || defaultConfig.teacher_time);
+  createInput('teacher_time', '办理时间', teacherTimeVal);
 
-  // 显示面板
-  document.getElementById('configPanel').style.display = 'block';
+  // === 6. 申请时间（查找包含“申请”的区块中的 .time）===
+  const applyDivs = Array.from(document.querySelectorAll('div')).filter(div => {
+    const pText = div.querySelector('p')?.textContent || '';
+    return pText.includes('申请');
+  });
+  const applyTimeEl = applyDivs[0]?.querySelector('.time');
+  const applyTimeVal = data.apply_time || (applyTimeEl?.textContent?.trim() || defaultConfig.apply_time);
+  createInput('apply_time', '申请时间', applyTimeVal);
+
+  // 应用配置到页面
+  applyConfigToPage(data);
 }
 
-// 保存到本地存储
+// 创建输入框
+function createInput(name, label, value) {
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <label>${label}:<br>
+      <input type="text" name="${name}" value="${escapeHtml(value)}" 
+             style="width:90%; padding:4px; margin:4px 0; font-size:14px;">
+    </label><br><br>
+  `;
+  document.getElementById('configFields').appendChild(div);
+}
+
+// 应用配置到页面元素
+function applyConfigToPage(data) {
+  // .info p 字段
+  document.querySelectorAll('.info p').forEach((p, i) => {
+    const key = `field_${i}`;
+    if (data[key] === undefined) return;
+    const keySpan = p.querySelector('span:first-child');
+    if (!keySpan) return;
+    const label = keySpan.textContent.trim();
+    p.innerHTML = keySpan.outerHTML + data[key];
+  });
+
+  // 用户姓名
+  if (data.user_h4_name && document.querySelector('.user-text h4')) {
+    document.querySelector('.user-text h4').textContent = data.user_h4_name;
+  }
+
+  // 用户学号
+  if (data.user_p_id) {
+    const el = document.querySelector('.user-text > p:not([class])');
+    if (el) el.textContent = data.user_p_id;
+  }
+
+  // 办理人角色
+  const roleRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(r =>
+    r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
+  );
+  if (data.handler_role && roleRow) {
+    roleRow.querySelector('p').textContent = data.handler_role;
+  }
+
+  // 办理时间
+  const timeEls = document.querySelectorAll('.progress .time');
+  const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
+  if (data.teacher_time && teacherTimeEl) {
+    teacherTimeEl.textContent = data.teacher_time;
+  }
+
+  // 申请时间
+  const applyDivs = Array.from(document.querySelectorAll('div')).filter(div => {
+    const pText = div.querySelector('p')?.textContent || '';
+    return pText.includes('申请');
+  });
+  const applyTimeEl = applyDivs[0]?.querySelector('.time');
+  if (data.apply_time && applyTimeEl) {
+    applyTimeEl.textContent = data.apply_time;
+  }
+
+  // 进度条中的用户姓名（sub-info）
+  if (data.user_h4_name) {
+    const subInfoEl = document.querySelector('.progress .sub-info');
+    if (subInfoEl) {
+      subInfoEl.textContent = data.user_h4_name;
+    }
+  }
+}
+
+// 保存配置
 function saveToLocal() {
   const data = {};
   document.querySelectorAll('#configFields input').forEach(input => {
     data[input.name] = input.value;
   });
   localStorage.setItem('leaveConfig', JSON.stringify(data));
-  alert('已保存！刷新后生效');
+  alert('✅ 配置已保存！刷新页面后生效');
   location.reload();
 }
 
-// 加载保存的数据并应用
-function loadConfig() {
-  const saved = localStorage.getItem('leaveConfig');
-  if (!saved) return;
-
-  const data = JSON.parse(saved);
-
-  // 应用：姓名
-  if (data.name) {
-    const el = document.querySelector('.user-text h4');
-    if (el) el.textContent = data.name;
-  }
-
-  // 应用：学号
-  if (data.id) {
-    const el = document.querySelector('.user-text p');
-    if (el) el.textContent = '学号：' + data.id;
-  }
-
-  // 应用：请假信息
-  document.querySelectorAll('.info p').forEach((p, i) => {
-    const key = p.querySelector('span:first-child');
-    if (!key) return;
-    const newValue = data[`info_${i}`];
-    if (newValue) {
-      const spans = p.querySelectorAll('span');
-      if (spans.length > 1) {
-        spans[1].textContent = newValue;
-      } else {
-        // 如果没有第二个 span，直接替换文本
-        p.innerHTML = key.outerHTML + newValue;
-      }
-    }
-  });
-
-  // 应用：申请人姓名
-  if (data.apply_name) {
-    const el = document.querySelector('.progress div:first-child p strong');
-    if (el) el.textContent = data.apply_name;
-  }
-
-  // 应用：申请时间
-  if (data.apply_time) {
-    const el = document.querySelector('.progress .time');
-    if (el) el.textContent = data.apply_time;
-  }
-
-  // 应用：大队长姓名
-  if (data.teacher_name) {
-    const rows = document.querySelectorAll('.progress .sub-info-row');
-    for (let row of rows) {
-      if (row.textContent.includes('大队长') || row.textContent.includes('辅导员')) {
-        const span = row.querySelector('span');
-        if (span) span.textContent = data.teacher_name;
-        break;
-      }
-    }
-  }
-
-  // 应用：大队长办理时间
-  const times = document.querySelectorAll('.progress .time');
-  if (data.teacher_time && times.length > 1) {
-    times[1].textContent = data.teacher_time;
-  } else if (data.teacher_time && times.length === 1 && document.querySelectorAll('.progress .sub-info-row').length > 0) {
-    // 如果只有一个 .time 但有多个步骤，可能需要更复杂逻辑
-    console.warn('时间字段可能未正确匹配');
-  }
+// 恢复默认
+function resetToDefault() {
+  localStorage.removeItem('leaveConfig');
+  alert('已恢复默认配置！刷新页面生效');
+  location.reload();
 }
 
-// 页面加载时恢复数据
-window.onload = loadConfig;
+// 隐藏面板
+function hidePanel() {
+  document.getElementById('configPanel').style.display = 'none';
+}
 
-// 防止 XSS
+// 显示面板
+function showPanel() {
+  document.getElementById('configPanel').style.display = 'block';
+}
+
+// === 核心：绑定长按头像触发 ===
+function setupLongPressOnAvatar() {
+  // 常见头像选择器（按优先级）
+  const selectors = [
+    '.user-text .avatar',
+    '.user-text > div:first-child', // 第一个 div（常为头像容器）
+    '.user-text circle',            // SVG 圆形
+    '.user-text svg',
+    '.avatar',
+    '.profile-pic',
+    '.user-text img'                // 备用：头像图片
+  ];
+
+  let avatar = null;
+  for (const sel of selectors) {
+    avatar = document.querySelector(sel);
+    if (avatar) break;
+  }
+
+  if (!avatar) {
+    console.warn('⚠️ 未找到头像元素，500ms 后重试...');
+    setTimeout(setupLongPressOnAvatar, 500);
+    return;
+  }
+
+  // 增强视觉样式
+  Object.assign(avatar.style, {
+    cursor: 'pointer',
+    border: '2px solid #007bff',
+    borderRadius: '50%',
+    boxShadow: '0 0 10px rgba(0,123,255,0.7)',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    position: 'relative'
+  });
+
+  avatar.title = '长按3秒进入配置模式';
+
+  // 长按开始
+  const startPress = () => {
+    longPressTimer = setTimeout(() => {
+      showPanel();
+      avatar.style.transform = 'scale(0.92)';
+      setTimeout(() => avatar.style.transform = '', 150);
+      alert('🎯 配置面板已开启，可修改字段并保存！');
+    }, 3000);
+  };
+
+  // 取消长按
+  const cancelPress = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    avatar.style.transform = '';
+  };
+
+  // 绑定鼠标事件
+  avatar.addEventListener('mousedown', e => e.preventDefault() || startPress());
+  document.addEventListener('mouseup', cancelPress);
+  document.addEventListener('mouseleave', cancelPress);
+
+  // 绑定触摸事件（手机兼容）
+  avatar.addEventListener('touchstart', e => e.preventDefault() || startPress(), { passive: false });
+  document.addEventListener('touchend', cancelPress);
+  document.addEventListener('touchcancel', cancelPress);
+}
+
+// 防 XSS
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
+
+// === 页面加载完成后初始化 ===
+document.addEventListener('DOMContentLoaded', () => {
+  // 延迟执行，确保 DOM 稳定
+  setTimeout(() => {
+    initConfigPanel();           // 初始化配置面板
+    setupLongPressOnAvatar();    // 绑定头像长按
+  }, 200);
+});
 </script>
 
+
+
+
+
+
+
+<!--结束-->
 <body>
 <div class="header">
     <a href="#">首页</a> > 应用 > 请假管理 > 请假管理
@@ -362,14 +472,14 @@ function escapeHtml(text) {
     <span>请假类型:</span>其他
     <img src="pass.png" style="float: right; margin-right: 0.7em; height: 3.3em; opacity: 0.9;">
 </p>
-        <p><span>请假去向:</span>回家</p>
-        <p><span>详细地址:</span>广东省广州市天河区深海明珠</p>
-        <p><span>开始时间:</span>2025-09-05 17:21:00</p>
-        <p><span>结束时间:</span>2025-09-05 21:21:00</p>
-        <p><span>统计时长:</span>0天4小时00分钟</p>
-        <p><span>紧急联系人:</span>xaffsas</p>
-        <p><span>紧急联系人电话:</span>13912034783</p>
-        <p><span>请假理由:</span>到处玩</p>
+        <p><span>请假去向:</span></p>
+        <p><span>详细地址:</span></p>
+        <p><span>开始时间:</span></p>
+        <p><span>结束时间:</span></p>
+        <p><span>统计时长:</span>天小时分钟</p>
+        <p><span>紧急联系人:</span></p>
+        <p><span>紧急联系人电话:</span></p>
+        <p><span>请假理由:</span></p>
         <p><span>请假状态:</span> <span style="color: rgb(34, 142, 241);">审核通过</span></p>
         <p><span>销假状态:</span></p>
         <p><span>请假附件:</span></p>
@@ -397,7 +507,7 @@ function escapeHtml(text) {
         </div>
 
         <div class="sub-info-row">
-            <p>大队长</p>
+            <p>辅导员</p>
             <p style="color: rgb(34, 142, 241);">同意</p>
         </div>
 
