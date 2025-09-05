@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>请假管理</title>
+<style>
+    body { font-family: Arial, sans-serif; }
+    .header { background-color: #f0f8ff; padding: 10px; }
+    .content { margin: 20px; }
+    .info {
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+.info, .progress {
+        margin-bottom: 20px;
+        position: relative;
+        padding-left: 10px;
+    }
+
+    .info::before, .progress::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 2px; /* 与 h3 垂直对齐 */
+        height: 24px; /* 约等于 h3 文字高度，可微调 */
+        width: 4px;
+        background-color: #007bff;
+    }
+
+.progress::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2.8px;
+    height: 1.5em; /* 与“办理进度”标题文字大致同高 */
+    width: 4px;
+    background-color: #007bff;
+}
+    .stamp { float: right; margin-top: -50px; }
+    .info p { 
+        margin: 0; 
+        line-height: 1.88; /* 调整行高以确保文本不会重叠 */
+        font-size: 1.1em;
+    }
+    .info span:first-child { 
+        color: rgb(161, 161, 161); 
+        margin-right: 0.5em; /* 控制键名和值之间的间距 */
+    }
+    .progress div { 
+        display: flex; 
+        align-items: center; 
+        margin: 0; 
+        line-height: 1.1; /* 调整行高以确保文本不会重叠 */
+        font-size: 1.1em;
+    }
+</style>
+</head>
+<body>
+<div class="header">
+    <a href="#">首页</a> > 应用 > 请假管理 > 请假管理
+</div>
+<div class="content">
+    <div class="info">
+        <h3>请假信息</h3>
+        <p><span>请假类型:</span>节假日及寒暑假请假</p>
+        <p><span>请假去向:</span>回家</p>
+        <p><span>详细地址:</span>广东省广州市天河区深海明珠</p>
+        <p><span>开始时间:</span>2025-09-05 17:21:00</p>
+        <p><span>结束时间:</span>2025-09-05 21:21:00</p>
+        <p><span>统计时长:</span>0天4小时00分钟</p>
+        <p><span>紧急联系人:</span>sjl</p>
+        <p><span>紧急联系人电话:</span>13912034783</p>
+        <p><span>请假理由:</span>到处玩</p>
+        <p><span>请假状态:</span> <span style="color: rgb(34, 142, 241);">审核通过</span></p>
+        <p><span>销假状态:</span>未销假</p>
+        <p><span>请假附件:</span></p>
+    </div>
+    <div class="progress">
+        <h3>办理进度</h3>
+        <div>
+            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
+            <p>申请 <span style="color: green;">申请</span></p>
+            <p style="margin-left: auto;">2025-06-06 14:53</p>
+        </div>
+        <p style="color: #a1a1a1; margin-left: 30px; font-size: 1.1em; margin-top: 0; margin-bottom: 0; line-height: 0.825;">姓名</p>
+        <div>
+            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
+            <p>辅导员审核 <span style="color: green;">审核通过</span></p>
+            <p style="margin-left: auto;">2025-06-06 14:54</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-left: 30px; margin-top: -20px; margin-bottom: -20px; line-height: 1; color: #a1a1a1; font-size: 1.1em;">
+    <p>大队长</p>
+    <p style="color: rgb(34, 142, 241);">同意</p>
+</div>
+        <div>
+            <div style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%; margin-right: 10px;"></div>
+            <p>结束</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
