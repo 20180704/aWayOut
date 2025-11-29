@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>请假管理</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      font-family: Arial, sans-serif;
+      font-size: 0.97em;
+    }
+
+    .header {
+      background-color: #f0f8ff;
+      padding: 0.625em;
+      font-size: inherit;
+      line-height: 1.4;
+      color: #333;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .header a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(100vh - 100px);
+    }
+
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .title h2 {
+      font-size: 1.29em;
+      color: #333;
+    }
+
+    .status-select {
+      background-color: white;
+      border-radius: 20px;
+      padding: 8px 15px;
+      border: 1px solid #d9e4f0;
+      font-size: 1.03em;
+      color: #1a73e8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .record-list {
+      margin-top: 20px;
+    }
+
+    .record-item {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .record-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .record-type {
+      font-size: 1.16em;
+      font-weight: 600;
+    }
+
+    .record-time {
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .record-details {
+      margin-top: 10px;
+    }
+
+    .detail-row {
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 0.97em;
+    }
+
+    .reason {
+      color: #666;
+      font-size: 0.97em;
+    }
+
+    .status {
+      color: #1a73e8;
+      font-size: 1.03em;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    .apply-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 50px;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.16em;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+      font-family: Arial, sans-serif;
+    }
+
+    .apply-btn:hover {
+      background-color: #1559c7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <div class="header">
+    <a href="index.html" style="color: blue; text-decoration: none;">首页</a> > 请假管理
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="main">
+    <div class="title">
+      <h2>申请记录</h2>
+      <div class="status-select">全部状态 ▼</div>
+    </div>
+
+    <div class="record-list">
+      <!-- 第一条记录：将从 localStorage 填充开始/结束时间 -->
+      <a href="info.html" class="record-item" id="first-record">
+        <div class="record-header">
+          <div class="record-type">其它</div>
+          <div class="record-time">—</div>
+        </div>
+        <div class="record-details">
+          <div class="detail-row">开始时间: <span id="start-time">2025-12-05 10:53</span></div>
+          <div class="detail-row">结束时间: <span id="end-time">2025-12-05 20:53</span></div>
+          <div class="reason">请假理由：吃饭</div>
+          <div class="status">审核通过</div>
+        </div>
+      </a>
+
+      <!-- 第一条：从 localStorage 动态加载（可选保留，也可替换为固定数据） -->
+<a href="info.html" class="record-item">
+  <div class="record-header">
+    <div class="record-type">其它</div>
+    <div class="record-time">2025-11-28</div>
+  </div>
+  <div class="record-details">
+    <div class="detail-row">开始时间: 2025-11-23 12:30</div>
+    <div class="detail-row">结束时间: 2025-11-23 17:45</div>
+    <div class="reason">吃饭</div>
+    <div class="status">审核通过</div>
+  </div>
+</a>
+
+<div class="record-item">
+  <div class="record-header">
+    <div class="record-type">节假日及寒暑假请假</div>
+    <div class="record-time">2025-11-07</div>
+  </div>
+  <div class="record-details">
+    <div class="detail-row">开始时间: 2025-11-07 18:20</div>
+    <div class="detail-row">结束时间: 2025-11-09 17:50</div>
+    <div class="reason">请假理由：回家</div>
+    <div class="status">审核通过</div>
+  </div>
+</div>
+
+<div class="record-item">
+  <div class="record-header">
+    <div class="record-type">节假日及寒暑假请假</div>
+    <div class="record-time">2025-10-17</div>
+  </div>
+  <div class="record-details">
+    <div class="detail-row">开始时间: 2025-10-17 18:15</div>
+    <div class="detail-row">结束时间: 2025-10-19 17:40</div>
+    <div class="reason">请假理由：回家</div>
+    <div class="status">审核通过</div>
+  </div>
+</div>
+
+<div class="record-item">
+  <div class="record-header">
+    <div class="record-type">其他</div>
+    <div class="record-time">2025-09-26</div>
+  </div>
+  <div class="record-details">
+    <div class="detail-row">开始时间: 2025-09-27 08:10</div>
+    <div class="detail-row">结束时间: 2025-09-27 17:35</div>
+    <div class="reason">请假理由：吃饭</div>
+    <div class="status">审核通过</div>
+  </div>
+</div>
+
+<div class="record-item">
+  <div class="record-header">
+    <div class="record-type">其它</div>
+    <div class="record-time">2025-09-05</div>
+  </div>
+  <div class="record-details">
+    <div class="detail-row">开始时间: 2025-09-05 18:05</div>
+    <div class="detail-row">结束时间: 2025-09-07 17:30</div>
+    <div class="reason">请假理由：吃饭</div>
+    <div class="status">审核通过</div>
+  </div>
+</div>
+    </div>
+  </div>
+
+  <button class="apply-btn">申请</button>
+
+  <!-- 新增：读取 localStorage 并填充数据 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const configStr = localStorage.getItem('leaveConfig');
+      if (configStr) {
+        try {
+          const config = JSON.parse(configStr);
+
+          // info.html 中：
+          // field_3 → 开始时间
+          // field_4 → 结束时间
+          const startTime = config.field_3 || '未设置';
+          const endTime = config.field_4 || '未设置';
+
+          document.getElementById('start-time').textContent = startTime;
+          document.getElementById('end-time').textContent = endTime;
+
+          // 可选：也更新右上角的时间（record-time）
+          // document.querySelector('#first-record .record-time').textContent = startTime.split(' ')[0] || '—';
+        } catch (e) {
+          console.warn('解析 leaveConfig 失败:', e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
