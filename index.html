@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+<!--index.html-->
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>校园服务平台</title>
   <style>
     body {
@@ -11,6 +12,7 @@
       padding: 0;
       background-color: #f5f5f5;
       color: #333;
+      overflow-x: hidden;
     }
 
     .header {
@@ -35,7 +37,7 @@
     }
 
     .user-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
     }
 
@@ -56,7 +58,7 @@
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      font-size: 18px;
+      font-size: 16px;
       color: #333;
       margin-bottom: 15px;
     }
@@ -73,7 +75,8 @@
     .icon-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 0;
+      padding: 0 10px;
     }
 
     .icon-item {
@@ -81,6 +84,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transform: scale(0.8);
+      transform-origin: center;
+      margin: 14px;
+      pointer-events: auto;
+    }
+
+    .icon-item > * {
+      pointer-events: none;
     }
 
     .icon-item img {
@@ -165,7 +176,6 @@
         <img src="8.jpg" />
         <span>投票/问卷</span>
       </div>
-      <!-- 学生请假申请：带当前姓名跳转 -->
       <a href="list.html?name=张三" style="text-decoration: none; color: inherit;">
         <div class="icon-item">
           <img src="9.jpg" />
@@ -186,9 +196,8 @@
   <!-- 自动同步 localStorage 中的姓名 -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      let userName = '默认'; // 默认值
+      let userName = '吴浩斌';
 
-      // 尝试从 localStorage 读取请假页面保存的姓名
       const saved = localStorage.getItem('leaveConfig');
       if (saved) {
         try {
@@ -201,13 +210,11 @@
         }
       }
 
-      // 更新页面上的姓名
       const nameEl = document.querySelector('.user-name');
       if (nameEl) {
         nameEl.textContent = userName;
       }
 
-      // 同步更新请假链接中的 name 参数
       const leaveLink = document.querySelector('a[href^="list.html"]');
       if (leaveLink) {
         leaveLink.href = `list.html?name=${encodeURIComponent(userName)}`;
