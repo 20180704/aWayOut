@@ -162,18 +162,18 @@ body {
 </head>
 
 <div id="configPanel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#f8f9fa; border-top:2px solid #007bff; padding:1em; z-index:10000; max-height:70vh; overflow-y:auto; font-size:14px; box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
-  <h4>参数配置</h4>
+  <button onclick="saveToLocal()" style="padding:6px 18px; background:#007bff; color:white; border:none; margin-left:15px;margin-right:20px;">保 存</button>
+<button onclick="autoSetToToday()" style="padding:6px 12px; background:#28a745; color:white; border:none; margin-right:50px;">自动设置为今天</button>
+<button onclick="hidePanel()" style="padding:6px 22px; background:#6c757d; color:white; border:none;margin-right:10px;">隐 藏</button>
   <div id="configFields"></div>
-  <button onclick="saveToLocal()" style="padding:6px 12px; background:#007bff; color:white; border:none; margin-right:8px;">保存配置</button>
-  <button onclick="resetToDefault()" style="padding:6px 12px; background:#dc3545; color:white; border:none; margin-right:8px;">恢复默认</button>
-  <button onclick="hidePanel()" style="padding:6px 12px; background:#6c757d; color:white; border:none;">隐藏</button>
-</div>
+  <button onclick="resetToDefault()" style="padding:6px 12px; background:#dc3545; color:white; border:none;">恢复默认</button>
+  </div>
 
 <script>
 // === 默认配置 ===
 const defaultConfig = {
   user_h4_name: "吴浩斌",
-  user_p_id: "20210001",
+  user_p_id: "202342010323",
   handler_role: "大队长",
   teacher_time: "2025-09-05 10:00",
   apply_time: "2025-09-05 10:00"
@@ -184,7 +184,7 @@ let originalPassImageIndices = new Set();
 
 // === 初始化配置面板 ===
 function initConfigPanel() {
-  // 记录原始带图标的行索引
+  // 记录原始带 pass.png 的 .info p 行索引
   originalPassImageIndices = new Set();
   document.querySelectorAll('.info p').forEach((p, i) => {
     if (p.querySelector('img[src="pass.png"]')) {
@@ -200,38 +200,74 @@ function initConfigPanel() {
 
   configFields.innerHTML = '';
 
-  // === 1. .info p 字段 ===
+  // 收集所有 .info p 字段
+  let infoFields = [];
   document.querySelectorAll('.info p').forEach((p, i) => {
     const keySpan = p.querySelector('span:first-child');
     if (!keySpan) return;
 
-    const keyLabel = keySpan.textContent.trim();
-    const value = p.textContent.replace(keyLabel, '').trim();
+    const keyLabel = keySpan.textContent.trim().replace(/:$/, '');
+    const value = p.textContent.replace(keySpan.textContent, '').trim();
     const inputName = `field_${i}`;
     const savedValue = data[inputName] !== undefined ? data[inputName] : value;
 
-    createInput(inputName, keyLabel, savedValue);
+    infoFields.push({
+      name: inputName,
+      label: keyLabel,
+      value: savedValue,
+      originalIndex: i
+    });
   });
 
-  // === 2-6. 其他字段 ===
-  const h4El = document.querySelector('.user-text h4');
-  const h4Val = data.user_h4_name || (h4El?.textContent?.trim() || defaultConfig.user_h4_name);
-  createInput('user_h4_name', '用户姓名', h4Val);
+  // 构建字段列表（每项独立 hint）
+  let orderedFields = [];
 
-  const idEl = document.querySelector('.user-text > p:not([class])');
-  const idVal = data.user_p_id || (idEl?.textContent?.trim() || defaultConfig.user_p_id);
-  createInput('user_p_id', '用户学号', idVal);
+  // --- 用户基本信息 ---
+  const h4Val = data.user_h4_name || (document.querySelector('.user-text h4')?.textContent?.trim() || defaultConfig.user_h4_name);
+  orderedFields.push({ name: 'user_h4_name', label: '用户姓名', value: h4Val, hint: '吴浩斌' });
 
+  const idVal = data.user_p_id || (document.querySelector('.user-text > p:not([class])')?.textContent?.trim() || defaultConfig.user_p_id);
+  orderedFields.push({ name: 'user_p_id', label: '用户学号', value: idVal, hint: '202342010323' });
+
+  // --- 显式定义每个 .info 字段的独立提示词 ---
+  const infoFieldHints = {
+    '开始时间': '2025-11-30 10:59:00',
+    '结束时间': '2025-11-30 15:18:00',
+    '统计时长': '0天04小时19分钟',
+    '请假理由': '吃饭',
+    '请假去向': '广东省广州市花都区',
+    '详细地址': '花都广场',
+    '请假状态': '审核通过',
+    '销假状态': '不填',
+    '请假附件': '不填',
+  };
+
+  // 分离请假类型（要放到最后）
+  const leaveTypeField = infoFields.find(f => f.label === '请假类型');
+  const otherInfoFields = infoFields.filter(f => f.label !== '请假类型');
+
+  // 按页面原始顺序添加其他 .info 字段，并赋予独立 hint
+  otherInfoFields.forEach(f => {
+    const hint = infoFieldHints[f.label] !== undefined ? infoFieldHints[f.label] : '-default-hint-';
+    orderedFields.push({ ...f, hint: hint });
+  });
+
+  // 请假类型放最后
+  if (leaveTypeField) {
+    orderedFields.push({ ...leaveTypeField, hint: '其他 或 节假日及寒暑假请假' });
+  }
+
+  // --- 进度区域字段 ---
   const roleRow = Array.from(document.querySelectorAll('.progress .sub-info-row')).find(r =>
     r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
   );
   const roleVal = data.handler_role || (roleRow?.querySelector('p')?.textContent?.trim() || defaultConfig.handler_role);
-  createInput('handler_role', '办理人角色', roleVal);
+  orderedFields.push({ name: 'handler_role', label: '办理人角色', value: roleVal, hint: '辅导员' });
 
   const timeEls = document.querySelectorAll('.progress .time');
   const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
   const teacherTimeVal = data.teacher_time || (teacherTimeEl?.textContent?.trim() || defaultConfig.teacher_time);
-  createInput('teacher_time', '办理时间', teacherTimeVal);
+  orderedFields.push({ name: 'teacher_time', label: '办理时间', value: teacherTimeVal, hint: '2025-11-29 12:17' });
 
   const applyDivs = Array.from(document.querySelectorAll('div')).filter(div => {
     const pText = div.querySelector('p')?.textContent || '';
@@ -239,21 +275,28 @@ function initConfigPanel() {
   });
   const applyTimeEl = applyDivs[0]?.querySelector('.time');
   const applyTimeVal = data.apply_time || (applyTimeEl?.textContent?.trim() || defaultConfig.apply_time);
-  createInput('apply_time', '申请时间', applyTimeVal);
+  orderedFields.push({ name: 'apply_time', label: '申请时间', value: applyTimeVal, hint: '2025-11-29 09:42' });
 
-  // 应用配置
+  // 渲染所有字段
+  orderedFields.forEach(field => {
+    createInput(field.name, field.label, field.value, field.hint);
+  });
+
+  // 应用配置到页面
   applyConfigToPage(data);
 }
-
-// 创建输入框
-function createInput(name, label, value) {
+// 创建输入框（支持每项独立的格式提示）
+function createInput(name, label, value, hint = "123") {
   const div = document.createElement('div');
   div.innerHTML = `
-    <label>${label}:<br>
-      <input type="text" name="${name}" value="${escapeHtml(value)}"
-             style="width:90%; padding:4px; margin:4px 0; font-size:14px;">
-    </label><br><br>
-  `;
+  <div style="display:flex; font-size:16px; color:#333333; margin-bottom:0px;">
+    <span style="min-width:130px; flex-shrink:0;">${label}:</span>
+    <span>格式:${escapeHtml(hint)}</span>
+  </div>
+  <input type="text" name="${name}" value="${escapeHtml(value)}"
+         style="width:100%; padding:4px; margin:4px 0; font-size:14px; box-sizing:border-box;">
+  <br><br>
+`;
   document.getElementById('configFields').appendChild(div);
 }
 
@@ -335,7 +378,7 @@ function applyConfigToPage(data) {
     }
   }
 
-  // ✅ 恢复 pass.png（仅限原本有的行）
+  // 恢复 pass.png（仅限原本有的行）
   infoPs.forEach((p, i) => {
     if (originalPassImageIndices.has(i) && !p.querySelector('img[src="pass.png"]')) {
       const img = document.createElement('img');
@@ -346,15 +389,141 @@ function applyConfigToPage(data) {
   });
 }
 
-// 保存
+// 保存并刷新（无提示）
 function saveToLocal() {
   const data = {};
   document.querySelectorAll('#configFields input').forEach(input => {
     data[input.name] = input.value;
   });
   localStorage.setItem('leaveConfig', JSON.stringify(data));
-  alert('配置已保存！刷新页面后生效');
   location.reload();
+}
+
+// 自动设置为今天（按需求设置开始/结束时间、统计时长、申请时间、办理时间），然后保存并刷新
+function autoSetToToday() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const randomMinute = () => Math.floor(Math.random() * 60);
+
+  // ---------- 开始时间 ----------
+  let startDateTime;
+  const currentHour = now.getHours();
+  const currentMin = now.getMinutes();
+
+  if (currentHour >= 7) {
+    // 当前时间 >= 7点：开始时间 ∈ [07:00, 当前时间]
+    const minStartMs = new Date(year, now.getMonth(), day, 7, 0).getTime(); // 07:00:00
+    const maxStartMs = now.getTime(); // 当前时刻
+
+    // 随机生成一个时间戳在 [minStartMs, maxStartMs] 之间
+    const randomStartMs = minStartMs + Math.floor(Math.random() * (maxStartMs - minStartMs + 1));
+    startDateTime = new Date(randomStartMs);
+  } else {
+    // 当前时间 < 7点：允许早于7点，使用“一小时前”作为基准，但确保在今天
+    const fallbackHour = (currentHour - 1 + 24) % 24;
+    const fallbackDay = fallbackHour < currentHour ? day : String(Number(day) - 1).padStart(2, '0');
+    // 为简化，我们仍限制在今天（不回退到昨天太早），直接用 00:00 ~ 当前时间
+    const minStartMs = new Date(year, now.getMonth(), day, 0, 0).getTime();
+    const maxStartMs = now.getTime();
+    const randomStartMs = minStartMs + Math.floor(Math.random() * (maxStartMs - minStartMs + 1));
+    startDateTime = new Date(randomStartMs);
+  }
+
+  const startYear = startDateTime.getFullYear();
+  const startMonth = String(startDateTime.getMonth() + 1).padStart(2, '0');
+  const startDay = String(startDateTime.getDate()).padStart(2, '0');
+  const startHour = startDateTime.getHours();
+  const startMin = randomMinute(); // 重新随机分钟（覆盖原分钟）
+  const startTimeStr = `${startYear}-${startMonth}-${startDay} ${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`;
+
+  // ---------- 结束时间 ----------
+  let endDateTime;
+  if (currentHour <= 22) {
+    // 当前时间 <= 22点：结束时间 ∈ [当前时间, 22:00]
+    const minEndMs = now.getTime();
+    const maxEndMs = new Date(year, now.getMonth(), day, 22, 0).getTime(); // 22:00:00
+
+    const randomEndMs = minEndMs + Math.floor(Math.random() * (maxEndMs - minEndMs + 1));
+    endDateTime = new Date(randomEndMs);
+  } else {
+    // 当前时间 > 22点：允许超过22点，使用“两小时后”作为上限基准
+    const fallbackHour = (currentHour + 2) % 24;
+    const fallbackDayOffset = (currentHour + 2) >= 24 ? 1 : 0;
+    const maxEndMs = new Date(year, now.getMonth(), Number(day) + fallbackDayOffset, fallbackHour, 59).getTime();
+    const minEndMs = now.getTime();
+    const randomEndMs = minEndMs + Math.floor(Math.random() * (maxEndMs - minEndMs + 1));
+    endDateTime = new Date(randomEndMs);
+  }
+
+  const endYear = endDateTime.getFullYear();
+  const endMonth = String(endDateTime.getMonth() + 1).padStart(2, '0');
+  const endDay = String(endDateTime.getDate()).padStart(2, '0');
+  const endHour = endDateTime.getHours();
+  const endMin = randomMinute(); // 重新随机分钟
+  const endTimeStr = `${endYear}-${endMonth}-${endDay} ${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`;
+
+  // ---------- 统计时长 ----------
+  const startMs = new Date(`${startYear}-${startMonth}-${startDay}T${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`).getTime();
+  const endMs = new Date(`${endYear}-${endMonth}-${endDay}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`).getTime();
+  let diffMs = endMs - startMs;
+  if (diffMs < 0) {
+    // 防御性处理（理论上不应发生）
+    diffMs += 24 * 60 * 60 * 1000;
+  }
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const days = Math.floor(totalSeconds / (24 * 3600));
+  const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const durationStr = `${days}天${String(hours).padStart(2, '0')}小时${String(minutes).padStart(2, '0')}分钟`;
+
+  // ---------- 申请时间（昨天 12:随机分钟） ----------
+  const prevDayApply = new Date(now);
+  prevDayApply.setDate(now.getDate() - 1);
+  const applyMin = randomMinute();
+  const applyDateStr = `${prevDayApply.getFullYear()}-${String(prevDayApply.getMonth() + 1).padStart(2, '0')}-${String(prevDayApply.getDate()).padStart(2, '0')} 12:${String(applyMin).padStart(2, '0')}`;
+
+  // ---------- 办理时间（昨天 15:随机分钟） ----------
+  const prevDayHandle = new Date(now);
+  prevDayHandle.setDate(now.getDate() - 1);
+  const handleMin = randomMinute();
+  const handleTimeStr = `${prevDayHandle.getFullYear()}-${String(prevDayHandle.getMonth() + 1).padStart(2, '0')}-${String(prevDayHandle.getDate()).padStart(2, '0')} 15:${String(handleMin).padStart(2, '0')}`;
+
+  // ---------- 更新配置面板输入框 ----------
+  let fieldIndices = {};
+  document.querySelectorAll('.info p').forEach((p, i) => {
+    const keySpan = p.querySelector('span:first-child');
+    if (keySpan) {
+      const label = keySpan.textContent.trim().replace(/:$/, '');
+      fieldIndices[label] = `field_${i}`;
+    }
+  });
+
+  document.querySelectorAll('#configFields input').forEach(input => {
+    switch (input.name) {
+      case fieldIndices['开始时间']:
+        input.value = startTimeStr;
+        break;
+      case fieldIndices['结束时间']:
+        input.value = endTimeStr;
+        break;
+      case fieldIndices['统计时长']:
+        input.value = durationStr;
+        break;
+      case 'apply_time':
+        input.value = applyDateStr;
+        break;
+      case 'teacher_time':
+        input.value = handleTimeStr;
+        break;
+    }
+  });
+
+  // 保存并刷新
+  saveToLocal();
 }
 
 // 恢复默认
@@ -384,12 +553,34 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     initConfigPanel();
 
-    const agreeText = document.querySelector('.sub-info-row p:last-child');
-    if (agreeText) {
-      agreeText.addEventListener('click', function(e) {
+    // 查找包含“辅导员审核”的 div（注意：不是 .sub-info-row）
+    const auditRows = document.querySelectorAll('.progress > div[style*="align-items"]');
+    let targetAgreeP = null;
+
+    for (let i = 0; i < auditRows.length; i++) {
+      const row = auditRows[i];
+      const pInRow = row.querySelector('p');
+      if (pInRow && pInRow.textContent.includes('辅导员审核')) {
+        // 找到下一个兄弟元素 .sub-info-row
+        let next = row.nextElementSibling;
+        while (next && !next.classList.contains('sub-info-row')) {
+          next = next.nextElementSibling;
+        }
+        if (next) {
+          const agreeP = next.querySelector('p:last-child');
+          if (agreeP && agreeP.textContent.trim() === '同意') {
+            targetAgreeP = agreeP;
+            break;
+          }
+        }
+      }
+    }
+
+    if (targetAgreeP) {
+      targetAgreeP.addEventListener('click', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         showPanel();
-        console.log('通过“同意”打开配置面板');
       });
     }
   }, 200);
@@ -406,8 +597,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <div class="user-info">
     <div class="avatar"></div>
     <div class="user-text">
-        <h4>张三</h4>
-        <p>20210001</p>
+        <h4>吴浩斌</h4>
+        <p>202342010323</p>
     </div>
 </div>
 
@@ -454,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="sub-info-row">
             <p>辅导员</p>
-            <p style="color: rgb(34, 142, 241);">同意</p>
+            <p style="color: rgb(34, 142, 241);">同意</p><!--单击即可打开设置，无痕，不变色，无下划线-->
         </div>
 
         <div style="align-items: center;">
