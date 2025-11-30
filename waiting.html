@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      margin: 0;
+      background: white;
+      display: flex;
+      justify-content: center;     /* 水平居中 */
+      align-items: center;         /* 垂直居中 */
+      height: 100vh;               /* 占满整个视口高度 */
+      overflow: hidden;            /* 防止滚动条出现 */
+    }
+    img {
+      display: block;              /* 去除行内元素默认间距 */
+      max-width: 100%;
+      max-height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <img src="load.gif" alt="">
+  <script>
+    // 获取目标页面
+    const urlParams = new URLSearchParams(window.location.search);
+    let target = urlParams.get('target');
+
+    // 安全白名单（防止开放重定向）
+    const allowed = ['list.html', 'info.html'];
+    if (!target || !allowed.includes(target)) {
+      target = 'index.html'; // 默认 fallback
+    }
+
+    // 随机等待 2~9 秒
+    const delay = Math.floor(Math.random() * 8000) + 2000; // 2000 ~ 9000 ms
+
+    setTimeout(() => {
+      window.location.href = target;
+    }, delay);
+  </script>
+</body>
+</html>
