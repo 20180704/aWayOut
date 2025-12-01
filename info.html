@@ -162,11 +162,11 @@ body {
 </head>
 
 <div id="configPanel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#f8f9fa; border-top:2px solid #007bff; padding:1em; z-index:10000; max-height:70vh; overflow-y:auto; font-size:14px; box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
-  <button onclick="saveToLocal()" style="padding:6px 18px; background:#007bff; color:white; border:none; margin-left:15px;margin-right:20px;">保 存</button>
-<button onclick="autoSetToToday()" style="padding:6px 12px; background:#28a745; color:white; border:none; margin-right:50px;">自动设置为今天</button>
-<button onclick="hidePanel()" style="padding:6px 22px; background:#6c757d; color:white; border:none;margin-right:10px;">隐 藏</button>
+  <button onclick="autoSetToToday()" style="padding:6px 10px; background:#28a745; color:white; border:none; margin-right:8px;">设置今天</button>
+  <button onclick="saveToLocal()" style="padding:6px 18px; background:#007bff; color:white; border:none; margin-left:1px;margin-right:20px;">保 存</button>
+  <button onclick="hidePanel()" style="padding:6px 14px; background:#6c757d; color:white; border:none;">隐 藏</button>
   <div id="configFields"></div>
-  <button onclick="resetToDefault()" style="padding:6px 12px; background:#dc3545; color:white; border:none;">恢复默认</button>
+  <button onclick="resetToDefault()" style="padding:6px 14px; background:#dc3545; color:white; border:none;">恢复默认</button>
   </div>
 
 <script>
@@ -233,10 +233,10 @@ function initConfigPanel() {
   const infoFieldHints = {
     '开始时间': '2025-11-30 10:59:00',
     '结束时间': '2025-11-30 15:18:00',
-    '统计时长': '0天04小时19分钟',
+    '统计时长': '(自动计算)0天04小时19分钟',
     '请假理由': '吃饭',
-    '请假去向': '广东省广州市花都区',
-    '详细地址': '花都广场',
+    '请假去向': '广东省广州市天河区',
+    '详细地址': '广东省广州市天河区正佳广场',
     '请假状态': '审核通过',
     '销假状态': '不填',
     '请假附件': '不填',
@@ -248,7 +248,7 @@ function initConfigPanel() {
 
   // 按页面原始顺序添加其他 .info 字段，并赋予独立 hint
   otherInfoFields.forEach(f => {
-    const hint = infoFieldHints[f.label] !== undefined ? infoFieldHints[f.label] : '-default-hint-';
+    const hint = infoFieldHints[f.label] !== undefined ? infoFieldHints[f.label] : '--';
     orderedFields.push({ ...f, hint: hint });
   });
 
@@ -262,7 +262,7 @@ function initConfigPanel() {
     r.querySelector('p') && ['大队长', '辅导员'].includes(r.querySelector('p').textContent.trim())
   );
   const roleVal = data.handler_role || (roleRow?.querySelector('p')?.textContent?.trim() || defaultConfig.handler_role);
-  orderedFields.push({ name: 'handler_role', label: '办理人角色', value: roleVal, hint: '辅导员' });
+  orderedFields.push({ name: 'handler_role', label: '辅导员', value: roleVal, hint: '辅导员' });
 
   const timeEls = document.querySelectorAll('.progress .time');
   const teacherTimeEl = timeEls.length > 1 ? timeEls[1] : timeEls[0];
@@ -289,12 +289,12 @@ function initConfigPanel() {
 function createInput(name, label, value, hint = "123") {
   const div = document.createElement('div');
   div.innerHTML = `
-  <div style="display:flex; font-size:16px; color:#333333; margin-bottom:0px;">
-    <span style="min-width:130px; flex-shrink:0;">${label}:</span>
-    <span>格式:${escapeHtml(hint)}</span>
+  <div style="display:flex; font-size:13px; color:#444444; margin-bottom:0px;">
+    <span style="min-width:80px; flex-shrink:0;">${label}:</span>
+    <span>例:${escapeHtml(hint)}</span>
   </div>
   <input type="text" name="${name}" value="${escapeHtml(value)}"
-         style="width:100%; padding:4px; margin:4px 0; font-size:14px; box-sizing:border-box;">
+         style="width:100%; padding:3px; margin:2px ; font-size:14px; box-sizing:border-box;">
   <br><br>
 `;
   document.getElementById('configFields').appendChild(div);
@@ -399,79 +399,107 @@ function saveToLocal() {
   location.reload();
 }
 
-// 自动设置为今天（按需求设置开始/结束时间、统计时长、申请时间、办理时间），然后保存并刷新
 function autoSetToToday() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
+  const currentHour = now.getHours();
+  const currentMin = now.getMinutes();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
 
   const randomMinute = () => Math.floor(Math.random() * 60);
 
-  // ---------- 开始时间 ----------
-  let startDateTime;
-  const currentHour = now.getHours();
-  const currentMin = now.getMinutes();
+  let startDateTime, endDateTime;
 
-  if (currentHour >= 7) {
-    // 当前时间 >= 7点：开始时间 ∈ [07:00, 当前时间]
-    const minStartMs = new Date(year, now.getMonth(), day, 7, 0).getTime(); // 07:00:00
-    const maxStartMs = now.getTime(); // 当前时刻
+  // 判断是否为工作日（周一到周五）
+  const isWorkday = dayOfWeek >= 1 && dayOfWeek <= 5;
 
-    // 随机生成一个时间戳在 [minStartMs, maxStartMs] 之间
-    const randomStartMs = minStartMs + Math.floor(Math.random() * (maxStartMs - minStartMs + 1));
-    startDateTime = new Date(randomStartMs);
+  if (isWorkday) {
+    // ========== 工作日逻辑：基于当前时间 ±1h / +2h，带边界约束 ==========
+    
+    // --- 开始时间 ---
+    const idealStartHour = currentHour - 1;
+    const idealStartMin = randomMinute();
+
+    if (currentHour >= 7) {
+      if (idealStartHour >= 7) {
+        startDateTime = new Date(year, now.getMonth(), day, idealStartHour, idealStartMin, 0);
+      } else {
+        // 回退到当前小时（或上一小时），至少早15分钟
+        let fallbackHour = currentHour;
+        let fallbackMin;
+        if (currentMin >= 15) {
+          fallbackMin = Math.max(0, currentMin - 15 - Math.floor(Math.random() * 15));
+        } else {
+          fallbackHour = currentHour - 1;
+          if (fallbackHour < 0) fallbackHour = 23;
+          fallbackMin = 45 + Math.floor(Math.random() * 15);
+        }
+        startDateTime = new Date(year, now.getMonth(), day, fallbackHour, fallbackMin, 0);
+      }
+    } else {
+      // 当前 < 7点，允许早于7点
+      startDateTime = new Date(year, now.getMonth(), day, idealStartHour, idealStartMin, 0);
+    }
+
+    // --- 结束时间 ---
+    const idealEndHour = currentHour + 2;
+    const idealEndMin = randomMinute();
+
+    if (currentHour <= 22) {
+      if (idealEndHour <= 22) {
+        endDateTime = new Date(year, now.getMonth(), day, idealEndHour, idealEndMin, 0);
+      } else {
+        // 回退到当前小时（或下一小时），至少晚15分钟
+        let fallbackHour = currentHour;
+        let fallbackMin;
+        if (currentMin <= 44) {
+          fallbackMin = currentMin + 15 + Math.floor(Math.random() * 15);
+          if (fallbackMin >= 60) fallbackMin = 59;
+        } else {
+          fallbackHour = currentHour + 1;
+          if (fallbackHour > 23) fallbackHour = 0;
+          fallbackMin = Math.floor(Math.random() * 15);
+        }
+        endDateTime = new Date(year, now.getMonth(), day, fallbackHour, fallbackMin, 0);
+      }
+    } else {
+      // 当前 > 22点，允许晚于22点
+      endDateTime = new Date(year, now.getMonth(), day, idealEndHour, idealEndMin, 0);
+    }
+
   } else {
-    // 当前时间 < 7点：允许早于7点，使用“一小时前”作为基准，但确保在今天
-    const fallbackHour = (currentHour - 1 + 24) % 24;
-    const fallbackDay = fallbackHour < currentHour ? day : String(Number(day) - 1).padStart(2, '0');
-    // 为简化，我们仍限制在今天（不回退到昨天太早），直接用 00:00 ~ 当前时间
-    const minStartMs = new Date(year, now.getMonth(), day, 0, 0).getTime();
-    const maxStartMs = now.getTime();
-    const randomStartMs = minStartMs + Math.floor(Math.random() * (maxStartMs - minStartMs + 1));
-    startDateTime = new Date(randomStartMs);
+    // ========== 节假日（周末）逻辑：固定 07:xx ~ 20:yy ==========
+    const startMin = randomMinute();
+    const endMin = randomMinute();
+
+    startDateTime = new Date(year, now.getMonth(), day, 7, startMin, 0);   // 07:xx:00
+    endDateTime = new Date(year, now.getMonth(), day, 20, endMin, 0);     // 20:yy:00
+
+    // 极小概率：end < start（如 07:50 vs 20:10 不会，但若逻辑错乱则防御）
+    if (endDateTime <= startDateTime) {
+      endDateTime.setHours(20, 59, 0); // 强制设为 20:59
+    }
   }
 
-  const startYear = startDateTime.getFullYear();
-  const startMonth = String(startDateTime.getMonth() + 1).padStart(2, '0');
-  const startDay = String(startDateTime.getDate()).padStart(2, '0');
-  const startHour = startDateTime.getHours();
-  const startMin = randomMinute(); // 重新随机分钟（覆盖原分钟）
-  const startTimeStr = `${startYear}-${startMonth}-${startDay} ${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`;
+  // ========== 格式化时间字符串 ==========
+  const formatTime = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const h = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${d} ${h}:${min}:00`;
+  };
 
-  // ---------- 结束时间 ----------
-  let endDateTime;
-  if (currentHour <= 22) {
-    // 当前时间 <= 22点：结束时间 ∈ [当前时间, 22:00]
-    const minEndMs = now.getTime();
-    const maxEndMs = new Date(year, now.getMonth(), day, 22, 0).getTime(); // 22:00:00
+  const startTimeStr = formatTime(startDateTime);
+  const endTimeStr = formatTime(endDateTime);
 
-    const randomEndMs = minEndMs + Math.floor(Math.random() * (maxEndMs - minEndMs + 1));
-    endDateTime = new Date(randomEndMs);
-  } else {
-    // 当前时间 > 22点：允许超过22点，使用“两小时后”作为上限基准
-    const fallbackHour = (currentHour + 2) % 24;
-    const fallbackDayOffset = (currentHour + 2) >= 24 ? 1 : 0;
-    const maxEndMs = new Date(year, now.getMonth(), Number(day) + fallbackDayOffset, fallbackHour, 59).getTime();
-    const minEndMs = now.getTime();
-    const randomEndMs = minEndMs + Math.floor(Math.random() * (maxEndMs - minEndMs + 1));
-    endDateTime = new Date(randomEndMs);
-  }
-
-  const endYear = endDateTime.getFullYear();
-  const endMonth = String(endDateTime.getMonth() + 1).padStart(2, '0');
-  const endDay = String(endDateTime.getDate()).padStart(2, '0');
-  const endHour = endDateTime.getHours();
-  const endMin = randomMinute(); // 重新随机分钟
-  const endTimeStr = `${endYear}-${endMonth}-${endDay} ${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`;
-
-  // ---------- 统计时长 ----------
-  const startMs = new Date(`${startYear}-${startMonth}-${startDay}T${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`).getTime();
-  const endMs = new Date(`${endYear}-${endMonth}-${endDay}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`).getTime();
-  let diffMs = endMs - startMs;
+  // ========== 计算统计时长 ==========
+  let diffMs = endDateTime.getTime() - startDateTime.getTime();
   if (diffMs < 0) {
-    // 防御性处理（理论上不应发生）
-    diffMs += 24 * 60 * 60 * 1000;
+    diffMs += 24 * 60 * 60 * 1000; // 跨天补偿
   }
 
   const totalSeconds = Math.floor(diffMs / 1000);
@@ -480,19 +508,18 @@ function autoSetToToday() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const durationStr = `${days}天${String(hours).padStart(2, '0')}小时${String(minutes).padStart(2, '0')}分钟`;
 
-  // ---------- 申请时间（昨天 12:随机分钟） ----------
+  // ========== 申请时间 & 办理时间（保持不变）==========
   const prevDayApply = new Date(now);
   prevDayApply.setDate(now.getDate() - 1);
   const applyMin = randomMinute();
   const applyDateStr = `${prevDayApply.getFullYear()}-${String(prevDayApply.getMonth() + 1).padStart(2, '0')}-${String(prevDayApply.getDate()).padStart(2, '0')} 12:${String(applyMin).padStart(2, '0')}`;
 
-  // ---------- 办理时间（昨天 15:随机分钟） ----------
   const prevDayHandle = new Date(now);
   prevDayHandle.setDate(now.getDate() - 1);
   const handleMin = randomMinute();
   const handleTimeStr = `${prevDayHandle.getFullYear()}-${String(prevDayHandle.getMonth() + 1).padStart(2, '0')}-${String(prevDayHandle.getDate()).padStart(2, '0')} 15:${String(handleMin).padStart(2, '0')}`;
 
-  // ---------- 更新配置面板输入框 ----------
+  // ========== 更新配置面板 ==========
   let fieldIndices = {};
   document.querySelectorAll('.info p').forEach((p, i) => {
     const keySpan = p.querySelector('span:first-child');
