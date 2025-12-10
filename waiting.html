@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+<!--waiting.html-->
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>...</title>
+  <title></title>
   <style>
     body {
       margin: 0;
@@ -21,7 +22,7 @@
   </style>
 </head>
 <body>
-  <img src="load.gif" width="130" height="130">
+  <img src="load.gif">
   <script>
     // 获取目标页面
     const urlParams = new URLSearchParams(window.location.search);
@@ -30,7 +31,7 @@
     // 安全白名单（防止开放重定向）
     const allowed = ['list.html', 'info.html'];
     if (!target || !allowed.includes(target)) {
-      target = 'index.html'; // 默认 fallback
+      target = 'workshop.html'; // 默认 fallback
     }
 
     // 随机等待 2~9 秒
@@ -41,5 +42,4 @@
     }, delay);
   </script>
 </body>
-
 </html>

@@ -3,224 +3,220 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>掌上校园</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工作台</title>
   <style>
     body {
-      font-family: "Microsoft YaHei", sans-serif;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
+      background-color: #f5f7fa;
       color: #333;
-      overflow-x: hidden;
+      padding-bottom: 60px; /* 防止内容被底部工具栏遮挡 */
     }
 
     .header {
-      width: 100%;
-      height: 200px;
+      position: relative;
+      background: linear-gradient(135deg, #e6f2ff, #ffffff);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
 
     .header img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .user-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .user-name {
-      font-size: 15px;
-      font-weight: bold;
-    }
-
-    .personal-info {
-      color: #666;
-      text-decoration: none;
-      font-size: 15px;
+      height: auto;
+      border-radius: 8px;
     }
 
     .section {
-      padding: 20px;
       background-color: white;
-      margin-top: 10px;
-      border-bottom: 1px solid #eee;
+      border-radius: 16px;
+      margin: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .section-title {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    .app-grid {
       display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
       justify-content: flex-start;
-      align-items: center;
-      font-size: 15px;
+    }
+
+    .app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  text-align: center;
+  text-decoration: none; /* 去掉下划线 */
+  color: inherit;        /* 继承父级颜色 */
+}
+
+    .app-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px; /* 原为 16px，现在适配 40px */
+  background-color: #5a9cf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .app-name {
+      font-size: 13px;
       color: #333;
-      margin-bottom: 15px;
+      line-height: 1.2;
+      margin: 0;
     }
 
-    .section-title::before {
-      content: "";
-      display: inline-block;
-      width: 3px;
-      height: 15px;
-      background-color: #007aff;
-      margin-right: 10px;
+    .app-tag {
+      font-size: 12px;
+      color: #909cab;
+      margin-top: 4px;
     }
 
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      padding: 0 10px;
+    /* 底部工具栏 */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 48px;
+      background-color: white;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+      padding: 0 16px;
+      box-sizing: border-box;
     }
 
-    .icon-item {
+    .footer-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      transform: scale(0.8);
-      transform-origin: center;
-      margin: 3px;
-      pointer-events: auto;
-      white-space: nowrap;
+      font-size: 11px;
+      color: #888;
+      text-decoration: none;
     }
 
-    .icon-item > * {
-      pointer-events: none;
+    .footer-item.active {
+      color: #5a9cf5;
     }
 
-    .icon-item img {
-      width: 50px;
-      height: 50px;
-      margin-bottom: 8px;
+    .footer-icon {
+      width: 20px;
+      height: 20px;
+      margin-bottom: 4px;
     }
 
-    .icon-item span {
-      font-size: 14px;
-      color: #333;
-      text-align: center;
-      line-height: 1.2;
-    }
-
-    .arrow {
-      font-size: 16px;
-      color: #999;
-      margin-left: auto;
+    .footer-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-
-  <!-- 头部大图 -->
+  <!-- 头部广告区域 -->
   <div class="header">
-    <img src="jiaoxuelou.jpg" />
+    <img src="1/ad.png" alt="" />
   </div>
 
-  <!-- 用户信息栏（仅显示姓名） -->
-  <div class="user-info">
-    <span class="user-name">张三</span>
-    <a href="#" class="personal-info">个人信息 ></a>
-  </div>
-
-  <!-- 教学科研模块 -->
+  <!-- 效率工具 -->
   <div class="section">
-    <div class="section-title">
-      <span>教学科研</span>
-      <span class="arrow">▼</span>
-    </div>
-    <div class="icon-grid">
-      <div class="icon-item">
-        <img src="1.jpg" />
-        <span>我的课表</span>
+    <div class="section-title">效率工具</div>
+    <div class="app-grid">
+      <div class="app-item">
+        <div class="app-icon"><img src="1/1.png" /></div>
+        <div class="app-name">日程</div>
       </div>
-      <div class="icon-item">
-        <img src="2.jpg" />
-        <span>期末报告</span>
+      <div class="app-item">
+        <div class="app-icon"><img src="1/2.png" /></div>
+        <div class="app-name">会议</div>
       </div>
-      <div class="icon-item">
-        <img src="3.jpg" />
-        <span>移动教务</span>
+      <div class="app-item">
+        <div class="app-icon"><img src="1/3.png" /></div>
+        <div class="app-name">微盘</div>
       </div>
-      <div class="icon-item">
-        <img src="4.jpg" />
-        <span>移动图书馆</span>
-      </div>
-      <div class="icon-item">
-        <img src="5.jpg" />
-        <span>实验系统</span>
-      </div>
-      <div class="icon-item">
-        <img src="6.jpg" />
-        <span>心理系统</span>
+      <div class="app-item">
+        <div class="app-icon"><img src="1/4.png" /></div>
+        <div class="app-name">收集表</div>
       </div>
     </div>
   </div>
 
-  <!-- 办公应用模块 -->
+  <!-- 警院微应用 -->
+<div class="section">
+  <div class="section-title">警院微应用</div>
+  <div class="app-grid">
+    <a href="waiting.html" class="app-item">
+      <div class="app-icon">
+        <img src="1/5.png" alt="掌上校园" />
+      </div>
+      <div class="app-name">掌上校园</div>
+    </a>
+  </div>
+</div>
+
+  <!-- 其他应用 -->
   <div class="section">
-    <div class="section-title">
-      <span>办公应用</span>
-      <span class="arrow">▼</span>
-    </div>
-    <div class="icon-grid">
-      <div class="icon-item">
-        <img src="7.jpg" />
-        <span>通知公示</span>
+    <div class="app-grid">
+      <div class="app-item">
+        <div class="app-icon"><img src="1/6.png" /></div>
+        <div class="app-name">智能机器人</div>
+        <div class="app-tag">AI+</div>
       </div>
-      <div class="icon-item">
-        <img src="8.jpg" />
-        <span>投票/问卷</span>
+      <div class="app-item">
+        <div class="app-icon"><img src="1/7.png" /></div>
+        <div class="app-name">企业小助手</div>
       </div>
-      <a href="waiting.html?target=list.html" style="text-decoration: none; color: inherit;">
-        <div class="icon-item">
-          <img src="9.jpg" />
-          <span>学生请假申请</span>
-        </div>
-      </a>
-      <div class="icon-item">
-        <img src="10.jpg" />
-        <span>勤工助学</span>
-      </div>
-      <div class="icon-item">
-        <img src="10.jpg" />
-        <span>一表通</span>
+      <div class="app-item">
+        <div class="app-icon"><img src="1/8.png" /></div>
+        <div class="app-name">手机版</div>
       </div>
     </div>
   </div>
 
-  <!-- 自动同步 localStorage 中的姓名 -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      let userName = '吴浩斌';
-
-      const saved = localStorage.getItem('leaveConfig');
-      if (saved) {
-        try {
-          const config = JSON.parse(saved);
-          if (config.user_h4_name) {
-            userName = config.user_h4_name;
-          }
-        } catch (e) {
-          console.warn('localStorage.leaveConfig 解析失败', e);
-        }
-      }
-
-      const nameEl = document.querySelector('.user-name');
-      if (nameEl) {
-        nameEl.textContent = userName;
-      }
-
-      const leaveLink = document.querySelector('a[href^="list.html"]');
-      if (leaveLink) {
-        leaveLink.href = `list.html?name=${encodeURIComponent(userName)}`;
-      }
-    });
-  </script>
+  <!-- 底部工具栏 -->
+  <div class="footer">
+    <a href="#" class="footer-item">
+      <div class="footer-icon"><img src="1/9.png" alt="" /></div>
+      <span>消息</span>
+    </a>
+    <a href="#" class="footer-item">
+      <div class="footer-icon"><img src="1/10.png" alt="" /></div>
+      <span>文档</span>
+    </a>
+    <a href="#" class="footer-item">
+      <div class="footer-icon"><img src="1/11.png" alt="" /></div>
+      <span>通讯录</span>
+    </a>
+    <a href="#" class="footer-item active">
+      <div class="footer-icon"><img src="1/12.png" alt="" /></div>
+      <span>工作台</span>
+    </a>
+    <a href="#" class="footer-item">
+      <div class="footer-icon"><img src="1/13.png" alt="" /></div>
+      <span>我</span>
+    </a>
+  </div>
 </body>
 </html>
