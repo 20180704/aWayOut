@@ -176,7 +176,7 @@
         <div class="record-details">
           <div class="detail-row">开始时间: <span id="start-time">2025-12-13 08:30</span></div>
           <div class="detail-row">结束时间: <span id="end-time">2025-12-13 21:30</span></div>
-          <div class="reason">请假理由: 吃饭</div>
+          <div class="reason">请假理由: <span id="leave-reason">吃饭</span></div>
           <div class="status">审核通过</div>
         </div>
       </a>
@@ -292,38 +292,41 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      const configStr = localStorage.getItem('leaveConfig');
-      if (configStr) {
-        try {
-          const config = JSON.parse(configStr);
+  const configStr = localStorage.getItem('leaveConfig');
+  if (configStr) {
+    try {
+      const config = JSON.parse(configStr);
 
-          let startTime = config.field_3;
-          let endTime = config.field_4;
+      let startTime = config.field_3;
+      let endTime = config.field_4;
+      let reason = config.field_8; // 👈 新增：请假理由对应 field_8
 
-          // 格式化时间（仅符合格式且以 :00 结尾时才处理）
-          const formattedStart = formatTimeIfValid(startTime);
-          const formattedEnd = formatTimeIfValid(endTime);
+      // 格式化时间（仅符合格式且以 :00 结尾时才处理）
+      const formattedStart = formatTimeIfValid(startTime);
+      const formattedEnd = formatTimeIfValid(endTime);
 
-          // 更新 DOM
-          const startEl = document.getElementById('start-time');
-          const endEl = document.getElementById('end-time');
-          const dateEl = document.getElementById('first-record-date');
+      // 更新 DOM
+      const startEl = document.getElementById('start-time');
+      const endEl = document.getElementById('end-time');
+      const dateEl = document.getElementById('first-record-date');
+      const reasonEl = document.getElementById('leave-reason'); // 👈 新增
 
-          if (startEl) startEl.textContent = formattedStart;
-          if (endEl) endEl.textContent = formattedEnd;
+      if (startEl) startEl.textContent = formattedStart;
+      if (endEl) endEl.textContent = formattedEnd;
 
-          // 提取开始时间的前10位作为日期（仅当是有效字符串时）
-          let datePart = '—';
-          if (typeof startTime === 'string' && startTime.length >= 10) {
-            datePart = startTime.substring(0, 10);
-          }
-          if (dateEl) dateEl.textContent = datePart;
-
-        } catch (e) {
-          console.warn('解析 leaveConfig 失败:', e);
-        }
+      let datePart = '—';
+      if (typeof startTime === 'string' && startTime.length >= 10) {
+        datePart = startTime.substring(0, 10);
       }
-    });
+      if (dateEl) dateEl.textContent = datePart;
+
+      if (reasonEl) reasonEl.textContent = reason || '—'; // 👈 新增
+
+    } catch (e) {
+      console.warn('解析 leaveConfig 失败:', e);
+    }
+  }
+});
   </script>
 </body>
 </html>
