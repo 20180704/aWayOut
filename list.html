@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--list.html-->
+<!-- list.html -->
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
@@ -167,11 +167,11 @@
     </div>
 
     <div class="record-list">
-      <!-- 第一条记录：动态填充 -->
-      <a href="waiting.html?target=info.html" class="record-item" id="first-record">
+      <!-- 第1条 (index 0) -->
+      <a href="waiting.html?target=info.html" class="record-item">
         <div class="record-header">
           <div class="record-type">其它</div>
-          <div class="record-time" id="first-record-date">2025-12-13</div>
+          <div class="record-time"><span id="record-date">2025-12-13</span></div>
         </div>
         <div class="record-details">
           <div class="detail-row">开始时间: <span id="start-time">2025-12-13 08:30</span></div>
@@ -181,94 +181,100 @@
         </div>
       </a>
 
-      <!-- 其他示例记录 -->
+      <!-- 第2条 (index 1) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">其它</div>
-          <div class="record-time">2025-11-29</div>
+          <div class="record-time"><span id="record-date1">2025-11-29</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-11-29 12:30</div>
-          <div class="detail-row">结束时间: 2025-11-29 17:45</div>
-          <div class="reason">请假理由: 吃饭</div>
+          <div class="detail-row">开始时间: <span id="start-time1">2025-11-29 12:30</span></div>
+          <div class="detail-row">结束时间: <span id="end-time1">2025-11-29 17:45</span></div>
+          <div class="reason">请假理由: <span id="leave-reason1">吃饭</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第3条 (index 2) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">其它</div>
-          <div class="record-time">2025-11-15</div>
+          <div class="record-time"><span id="record-date2">2025-11-15</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-11-15 08:20</div>
-          <div class="detail-row">结束时间: 2025-11-15 17:50</div>
-          <div class="reason">请假理由: 吃饭</div>
+          <div class="detail-row">开始时间: <span id="start-time2">2025-11-15 08:20</span></div>
+          <div class="detail-row">结束时间: <span id="end-time2">2025-11-15 17:50</span></div>
+          <div class="reason">请假理由: <span id="leave-reason2">吃饭</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第4条 (index 3) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">节假日及寒暑假请假</div>
-          <div class="record-time">2025-10-17</div>
+          <div class="record-time"><span id="record-date3">2025-10-17</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-10-17 18:15</div>
-          <div class="detail-row">结束时间: 2025-10-19 17:40</div>
-          <div class="reason">请假理由: 回家</div>
+          <div class="detail-row">开始时间: <span id="start-time3">2025-10-17 18:15</span></div>
+          <div class="detail-row">结束时间: <span id="end-time3">2025-10-19 17:40</span></div>
+          <div class="reason">请假理由: <span id="leave-reason3">回家</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第5条 (index 4) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">节假日及寒暑假请假</div>
-          <div class="record-time">2025-09-30</div>
+          <div class="record-time"><span id="record-date4">2025-09-30</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-09-30 18:10</div>
-          <div class="detail-row">结束时间: 2025-10-08 17:35</div>
-          <div class="reason">请假理由: 回家</div>
+          <div class="detail-row">开始时间: <span id="start-time4">2025-09-30 18:10</span></div>
+          <div class="detail-row">结束时间: <span id="end-time4">2025-10-08 17:35</span></div>
+          <div class="reason">请假理由: <span id="leave-reason4">回家</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第6条 (index 5) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">其它</div>
-          <div class="record-time">2025-09-20</div>
+          <div class="record-time"><span id="record-date5">2025-09-20</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-09-20 08:05</div>
-          <div class="detail-row">结束时间: 2025-09-20 19:30</div>
-          <div class="reason">请假理由: 吃饭</div>
+          <div class="detail-row">开始时间: <span id="start-time5">2025-09-20 08:05</span></div>
+          <div class="detail-row">结束时间: <span id="end-time5">2025-09-20 19:30</span></div>
+          <div class="reason">请假理由: <span id="leave-reason5">吃饭</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第7条 (index 6) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">节假日及寒暑假请假</div>
-          <div class="record-time">2025-09-12</div>
+          <div class="record-time"><span id="record-date6">2025-09-12</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-09-12 18:05</div>
-          <div class="detail-row">结束时间: 2025-09-14 17:30</div>
-          <div class="reason">请假理由: 回家</div>
+          <div class="detail-row">开始时间: <span id="start-time6">2025-09-12 18:05</span></div>
+          <div class="detail-row">结束时间: <span id="end-time6">2025-09-14 17:30</span></div>
+          <div class="reason">请假理由: <span id="leave-reason6">回家</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
 
+      <!-- 第8条 (index 7) -->
       <div class="record-item">
         <div class="record-header">
           <div class="record-type">其它</div>
-          <div class="record-time">2025-09-05</div>
+          <div class="record-time"><span id="record-date7">2025-09-05</span></div>
         </div>
         <div class="record-details">
-          <div class="detail-row">开始时间: 2025-09-05 18:05</div>
-          <div class="detail-row">结束时间: 2025-09-07 17:30</div>
-          <div class="reason">请假理由: 吃饭</div>
+          <div class="detail-row">开始时间: <span id="start-time7">2025-09-05 18:05</span></div>
+          <div class="detail-row">结束时间: <span id="end-time7">2025-09-07 17:30</span></div>
+          <div class="reason">请假理由: <span id="leave-reason7">吃饭</span></div>
           <div class="status">审核通过</div>
         </div>
       </div>
@@ -278,55 +284,99 @@
   <button class="apply-btn">申请</button>
 
   <script>
-    // 正则：匹配 YYYY-MM-DD HH:MM:SS 格式（允许单/双位月日时分秒，但此处按标准格式）
-    const datetimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+    function isWeekend(date) {
+      const day = date.getDay();
+      return day === 6 || day === 0; // 周六 or 周日
+    }
 
-    function formatTimeIfValid(timeStr) {
-      if (typeof timeStr === 'string' && datetimeRegex.test(timeStr)) {
-        // 确保以 :00 结尾才截断
-        if (timeStr.endsWith(':00')) {
-          return timeStr.slice(0, -3);
-        }
-      }
-      return timeStr || '—';
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDateTime(date) {
+      return formatDate(date) + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-  const configStr = localStorage.getItem('leaveConfig');
-  if (configStr) {
-    try {
-      const config = JSON.parse(configStr);
+      const configStr = localStorage.getItem('leaveConfig');
+      if (!configStr) return;
 
-      let startTime = config.field_3;
-      let endTime = config.field_4;
-      let reason = config.field_8; // 👈 新增：请假理由对应 field_8
+      try {
+        const config = JSON.parse(configStr);
+        const rawStartTime = config.field_3; // e.g. "2025-12-13 08:30:00"
+        const rawEndTime = config.field_4;
+        const reason0 = config.field_8 || '—';
 
-      // 格式化时间（仅符合格式且以 :00 结尾时才处理）
-      const formattedStart = formatTimeIfValid(startTime);
-      const formattedEnd = formatTimeIfValid(endTime);
+        if (!rawStartTime || typeof rawStartTime !== 'string') return;
 
-      // 更新 DOM
-      const startEl = document.getElementById('start-time');
-      const endEl = document.getElementById('end-time');
-      const dateEl = document.getElementById('first-record-date');
-      const reasonEl = document.getElementById('leave-reason'); // 👈 新增
+        // 解析第一条的开始时间
+        let baseDate = new Date(rawStartTime.replace(' ', 'T'));
+        if (isNaN(baseDate.getTime())) return;
 
-      if (startEl) startEl.textContent = formattedStart;
-      if (endEl) endEl.textContent = formattedEnd;
+        // --- 填充第0条（直接使用原始数据） ---
+        document.getElementById('start-time').textContent = rawStartTime.replace(/:00$/, '');
+        document.getElementById('end-time').textContent = (rawEndTime || '').replace(/:00$/, '') || '—';
+        document.getElementById('leave-reason').textContent = reason0;
+        document.getElementById('record-date').textContent = rawStartTime.substring(0, 10);
 
-      let datePart = '—';
-      if (typeof startTime === 'string' && startTime.length >= 10) {
-        datePart = startTime.substring(0, 10);
+        // --- 生成并填充第1~7条 ---
+        let currentDate = new Date(baseDate.getTime());
+
+        for (let i = 1; i <= 7; i++) {
+          const daysBack = getRandomInt(3, 10);
+          currentDate.setDate(currentDate.getDate() - daysBack);
+
+          let recordType, reason, startTime, endTime, displayDate;
+
+          if (isWeekend(currentDate)) {
+            // 找到最近的周五
+            const day = currentDate.getDay();
+            const friday = new Date(currentDate);
+            if (day === 6) friday.setDate(friday.getDate() - 1);
+            else if (day === 0) friday.setDate(friday.getDate() - 2);
+            else friday.setDate(friday.getDate() - (day + 1) % 7); // 安全兜底
+
+            recordType = '节假日及寒暑假请假';
+            reason = '回家';
+            startTime = new Date(friday.getFullYear(), friday.getMonth(), friday.getDate(), 18, 0);
+            endTime = new Date(friday.getFullYear(), friday.getMonth(), friday.getDate() + 2, 17, 0);
+            displayDate = formatDate(friday); // 显示周五日期
+          } else {
+            recordType = '其它';
+            reason = '吃饭';
+            if (Math.random() > 0.5) {
+              startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 0);
+              endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 13, 0);
+            } else {
+              startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 17, 0);
+              endTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 19, 0);
+            }
+            displayDate = formatDate(currentDate);
+          }
+
+          // 更新 DOM（第 i 条）
+          const idx = i;
+          const typeEl = document.querySelector(`.record-item:nth-child(${idx + 1}) .record-type`);
+          if (typeEl) typeEl.textContent = recordType;
+
+          document.getElementById(`record-date${idx}`).textContent = displayDate;
+          document.getElementById(`start-time${idx}`).textContent = formatDateTime(startTime);
+          document.getElementById(`end-time${idx}`).textContent = formatDateTime(endTime);
+          document.getElementById(`leave-reason${idx}`).textContent = reason;
+        }
+
+      } catch (e) {
+        console.warn('填充动态记录失败，保留默认值:', e);
+        // 不做任何操作，保留 HTML 默认文本
       }
-      if (dateEl) dateEl.textContent = datePart;
-
-      if (reasonEl) reasonEl.textContent = reason || '—'; // 👈 新增
-
-    } catch (e) {
-      console.warn('解析 leaveConfig 失败:', e);
-    }
-  }
-});
+    });
   </script>
 </body>
 </html>
