@@ -32,7 +32,7 @@
     // 安全白名单（防止开放重定向）
     const allowed = ['list.html', 'info.html', 'workshop.html','index.html'];
     if (!target || !allowed.includes(target)) {
-      target = 'workshop.html'; // 默认 fallback
+      target = 'index.html'; // 默认 fallback
     }
 
     // 随机等待 2~9 秒
