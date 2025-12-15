@@ -9,7 +9,7 @@
 body { 
     font-family: Arial, sans-serif; 
     margin: 0;
-    padding: 0;
+    padding-top: 2em;
     font-size: 0.97em;
 }
 .user-info {
@@ -37,9 +37,15 @@ body {
     color: gray;
     font-size: 0.9em;
 }
-.header { 
-    background-color: #f0f8ff; 
-    padding: 0.625em;
+.header {
+  background-color: #f0f8ff;
+  padding: 0.625em;             /* ≈10px（基于默认 16px 字体） */
+  position: fixed;              /* 固定在视口顶部 */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;                /* 确保在其他内容之上 */
+  box-sizing: border-box;       /* 确保 padding 不影响宽度计算 */
 }
 .content { 
     margin: 1.25em;
@@ -620,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <body>
 <div class="header">
-    <a href="index.html" style="color: blue; text-decoration: none;">首页</a> > 请假管理 > 请假管理
+    <a href="index.html" style="color: blue; text-decoration: none;">首页</a> > 请假管理
 </div>
 
 
@@ -687,5 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 </div>
+<div style="height: 5em; background-color: #f3f4f8; width: 100vw; position: absolute; left: 0; margin-top: 0.6em;"></div>
 </body>
 </html>
